@@ -8,10 +8,11 @@ require_once __DIR__ . '/../../src/Database.php';
 use Eco\Core\Database;
 
 $action = $_GET['action'] ?? '';
-$db = Database::getConnection();
 
 try {
-    // Action 1: Fetch all 16 regions of Chile
+    $db = Database::getConnection();
+
+    // Acción 1: Obtener las 16 regiones de Chile
     if ($action === 'regions') {
         $stmt = $db->query("SELECT id, name, roman_numeral FROM chile_regions ORDER BY id ASC");
         $regions = $stmt->fetchAll();
@@ -19,13 +20,12 @@ try {
         exit;
     } 
     
-    // Action 2: Fetch specific Comunas filtered by parent Region ID
-    unset($db);
-    $db = Database::getConnection();
+    // Acción 2: Obtener comunas filtradas por ID de Región
     if ($action === 'comunas') {
         $regionId = (int)($_GET['region_id'] ?? 0);
         
         if (!$regionId) {
+            http_response_code(400); // Bad Request formal
             echo json_encode(['success' => false, 'message' => 'Falta el parámetro region_id.']);
             exit;
         }
@@ -38,7 +38,8 @@ try {
         exit;
     }
 
-    // Default response if action doesn't match
+    // Respuesta por defecto si no coincide la acción
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Acción inválida. Utilice ?action=regions o ?action=comunas&region_id=X']);
 
 } catch (Exception $e) {

@@ -108,32 +108,47 @@
             }
         }
 
-        // Carga dinámica usando la API de Localizaciones que creamos antes
         document.addEventListener('DOMContentLoaded', async () => {
             const regSel = document.getElementById('region-selector');
             const comSel = document.getElementById('comuna-selector');
 
-            // 1. Cargar Regiones
-            const resReg = await fetch('/api/locations.php?action=regions');
-            const jsonReg = await resReg.json();
-            if(jsonReg.success) {
-                jsonReg.data.forEach(r => {
-                    regSel.innerHTML += `<option value="${r.id}">${r.roman_numeral} - ${r.name}</option>`;
-                });
+            try {
+                // 1. Fetch and load regions (?action=regions) 
+                // Notice the layout filename fix: localtions.php
+                const resReg = await fetch('/api/localtions.php?action=regions');
+                const jsonReg = await resReg.json();
+                
+                if(jsonReg.success && Array.isArray(jsonReg.data)) {
+                    jsonReg.data.forEach(r => {
+                        regSel.innerHTML += `<option value="${r.id}">${r.roman_numeral} - ${r.name}</option>`;
+                    });
+                }
+            } catch (err) {
+                console.error("Error loading regions:", err);
             }
 
-            // 2. Escuchar cambios para cargar Comunas
+            // 2. Listen for region shifts to reload Comunas (?action=comunas&region_id=X)
             regSel.addEventListener('change', async () => {
-                comSel.innerHTML = '<option value="">Cargando comunas...</option>';
-                if(!regSel.value) return;
+                if(!regSel.value) {
+                    comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
+                    return;
+                }
 
-                const resCom = await fetch(`/api/locations.php?action=comunas&region_id=${regSel.value}`);
-                const jsonCom = await resCom.json();
-                comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
-                if(jsonCom.success) {
-                    jsonCom.data.forEach(c => {
-                        comSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                    });
+                comSel.innerHTML = '<option value="">Cargando comunas...</option>';
+
+                try {
+                    const resCom = await fetch(`/api/localtions.php?action=comunas&region_id=${regSel.value}`);
+                    const jsonCom = await resCom.json();
+                    
+                    comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
+                    if(jsonCom.success && Array.isArray(jsonCom.data)) {
+                        jsonCom.data.forEach(c => {
+                            comSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                        });
+                    }
+                } catch (err) {
+                    console.error("Error loading comunas:", err);
+                    comSel.innerHTML = '<option value="">Error loading data</option>';
                 }
             });
         });
