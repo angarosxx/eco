@@ -31,9 +31,13 @@ COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 WORKDIR /var/www/html
 
+# CORRECCIÓN: Copia el contenido actual (que ya es la carpeta web) al WORKDIR
+COPY . .
+
 # Setup proper folder permissions for public uploads later
+# (Aseguramos que todo /var/www/html sea de nginx para evitar bloqueos de PHP)
 RUN mkdir -p /var/www/html/public/uploads && \
-    chown -R nginx:nginx /var/www/html/public/uploads && \
+    chown -R nginx:nginx /var/www/html && \
     chmod -R 755 /var/www/html/public/uploads
 
 EXPOSE 80
