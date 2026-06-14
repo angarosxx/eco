@@ -33,7 +33,8 @@ WORKDIR /var/www/html
 
 # Setup proper folder permissions for public uploads later
 RUN mkdir -p /var/www/html/public/uploads && \
-    chown -w /var/www/html/public/uploads
+    chown -R nginx:nginx /var/www/html/public/uploads && \
+    chmod -R 755 /var/www/html/public/uploads
 
 EXPOSE 80
 
