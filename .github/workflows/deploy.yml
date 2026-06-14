@@ -1,4 +1,4 @@
-name: Build and Deploy Eco Marketplace
+name: CI/CD Build and Deploy Pipeline
 
 on:
   push:
@@ -6,9 +6,11 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: angarosxx/eco
+  IMAGE_NAME: ${{ github.repository }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
@@ -16,44 +18,54 @@ jobs:
       packages: write
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
 
-    - name: Log in to GitHub Container Registry
-      uses: docker/login-action@v2
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and Push Docker Image
-      uses: docker/build-push-action@v4
-      with:
-        context: ./web
-        file: ./web/Dockerfile
-        push: true
-        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Extract Docker Metadata Info
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long
+            type=raw,value=latest
 
-  deploy-to-k8s:
+      - name: Build and Push Shared Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./web           # <-- CHANGE 1: Point to your web/ folder context
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy-marketplace:              # <-- Renamed for context clarity
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
 
-    - name: Set up Kubeconfig Context
-      uses: azure/k8s-set-context@v3
-      with:
-        method: kubeconfig
-        # Store your K8s Master cluster config file inside your GitHub Repo Secrets as KUBECONFIG
-        kubeconfig: ${{ secrets.KUBECONFIG }} 
+      - name: Setup Kubernetes Context Manually
+        run: |
+          mkdir -p ~/.kube
+          # CHANGE 2: Ensure your GitHub Secret is named KUBE_CONFIG_DATA
+          # and contains your Base64 encoded k3s.yaml string!
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
 
-    - name: Deploy Manifests to Kubernetes
-      uses: azure/k8s-deploy@v4
-      with:
-        manifests: |
-          k8s/secrets.yaml
-          k8s/deployments.yaml
-        images: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-        action: deploy
+      - name: Deploy Client Infrastructure Stacks
+        run: |
+          # 1. Apply your base configurations globally inside your k8s folder
+          kubectl apply -f k8s/secrets.yaml
+          kubectl apply -f k8s/deployments.yaml
+          
+          # 2. CHANGE 3: Rollout the exact deployment name we used in deployments.yaml
+          # and force it to target your dedicated namespace!
+          kubectl rollout restart deployment/eco-web-deployment -n eco-prod
