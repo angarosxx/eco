@@ -63,9 +63,5 @@ jobs:
       - name: Apply your base configurations globally inside your k8s folder
         run: |
           kubectl apply -f k8s/secrets.yaml
-          # Use replace --force to completely overwrite ghost environment variables
+          # Forcefully wipes and applies your fresh Apache image specifications cleanly
           kubectl replace --force -f k8s/deployments.yaml
-          
-          # 2. CHANGE 3: Rollout the exact deployment name we used in deployments.yaml
-          # and force it to target your dedicated namespace!
-          kubectl rollout restart deployment/eco-web-deployment -n eco-prod

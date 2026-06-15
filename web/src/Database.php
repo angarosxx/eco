@@ -12,14 +12,16 @@ class Database {
      * Get the authenticated PDO connection instance (Singleton Pattern)
      */
     public static function getConnection(): PDO {
-    if (self::$instance === null) {
-        // Use the injected environment variable, fallback to the native K8s internal DNS address
-        $host     = getenv('DB_HOST') ?: 'mariadb-central.default.svc.cluster.local';
-        $port     = getenv('DB_PORT') ?: '3306';
-        $dbName   = getenv('DB_NAME') ?: 'eco_classifieds';
-        $username = getenv('DB_USER') ?: 'user_prod_eco';
-        $password = getenv('DB_PASSWORD') ?: 'U80wrNQF2r4V8F5109FD';
-        $useSsl   = getenv('DB_SSL') === 'false'; // This will evaluate to false natively now
+        if (self::$instance === null) {
+            // Updated default fallback host to match your verified live service name
+            $host     = getenv('DB_HOST') ?: 'mariadb-service.default.svc.cluster.local';
+            $port     = getenv('DB_PORT') ?: '3306';
+            $dbName   = getenv('DB_NAME') ?: 'eco_classifieds';
+            $username = getenv('DB_USER') ?: 'user_prod_eco';
+            $password = getenv('DB_PASSWORD') ?: 'U80wrNQF2r4V8F5109FD';
+            
+            // FIXED: Only evaluate to true if the environment variable is explicitly 'true'
+            $useSsl   = getenv('DB_SSL') === 'true'; 
 
             $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
             
@@ -29,16 +31,14 @@ class Database {
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ];
 
-            // If your remote K8s cluster enforces secure encrypted traffic paths
+            // This block will now be correctly skipped when DB_SSL is false
             if ($useSsl) {
                 $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false; 
-                // You can expand this to point to a specific CA cert file if needed later
             }
 
             try {
                 self::$instance = new PDO($dsn, $username, $password, $options);
             } catch (PDOException $e) {
-                // Log error safely or handle gracefully depending on environmental setup
                 throw new PDOException("Database connection failure: " . $e->getMessage(), (int)$e->getCode());
             }
         }
