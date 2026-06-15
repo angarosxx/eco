@@ -1,9 +1,11 @@
 RewriteEngine On
+RewriteBase /
 
-# If the requested filename is not a physical directory, link, or file on disk
-RewriteCond %{REQUEST_FILENAME} !-d
+# 🔥 FORCE EXCLUSION: If the request is for anything in the api folder, serve it directly
+RewriteCond %{REQUEST_URI} ^/api/ [NC]
+RewriteRule ^ - [L]
+
+# Global fallback router for clean standard pages
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-l
-
-# Send the entire URI request string straight down to your index framework handler
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
