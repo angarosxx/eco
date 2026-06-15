@@ -60,11 +60,11 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Deploy Client Infrastructure Stacks
+      - name: Apply your base configurations globally inside your k8s folder
         run: |
-          # 1. Apply your base configurations globally inside your k8s folder
           kubectl apply -f k8s/secrets.yaml
-          kubectl apply -f k8s/deployments.yaml
+          # Use replace --force to completely overwrite ghost environment variables
+          kubectl replace --force -f k8s/deployments.yaml
           
           # 2. CHANGE 3: Rollout the exact deployment name we used in deployments.yaml
           # and force it to target your dedicated namespace!
