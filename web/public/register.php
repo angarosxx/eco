@@ -115,7 +115,7 @@
             try {
                 // 1. Fetch and load regions (?action=regions) 
                 // Notice the layout filename fix: localtions.php
-                const resReg = await fetch('/api/localtions.php?action=regions');
+                const resReg = await fetch('/api/locations.php?action=regions');
                 const jsonReg = await resReg.json();
                 
                 if(jsonReg.success && Array.isArray(jsonReg.data)) {
@@ -137,7 +137,7 @@
                 comSel.innerHTML = '<option value="">Cargando comunas...</option>';
 
                 try {
-                    const resCom = await fetch(`/api/localtions.php?action=comunas&region_id=${regSel.value}`);
+                    const resCom = await fetch(`/api/locations.php?action=comunas&region_id=${regSel.value}`);
                     const jsonCom = await resCom.json();
                     
                     comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
