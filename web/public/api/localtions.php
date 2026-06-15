@@ -44,5 +44,7 @@ try {
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Server Error: ' . $e->getMessage()]);
+    // CHANGE THIS LINE to output the detailed system message:
+    echo json_encode(['success' => false, 'message' => 'CRASH LOG: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine()]);
+    exit;
 }
