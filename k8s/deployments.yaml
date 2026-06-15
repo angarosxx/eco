@@ -26,8 +26,8 @@ spec:
         - name: DB_HOST
           value: "mariadb-service.default.svc.cluster.local"
             #secretKeyRef:
-        #- name: eco-marketplace-secrets
-        #      key: db-host
+        - name: eco-marketplace-secrets
+              key: db-host
         - name: DB_NAME
           value: "eco_classifieds"
         - name: DB_USER
