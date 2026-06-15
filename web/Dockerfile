@@ -1,47 +1,36 @@
-FROM alpine:3.18
+FROM php:8.2-apache
 
-# Install Nginx, PHP 8.2, and critical extensions for database & image handling
-RUN apk add --no-cache \
-    nginx \
-    php82 \
-    php82-fpm \
-    php82-mysqli \
-    php82-pdo \
-    php82-pdo_mysql \
-    php82-json \
-    php82-openssl \
-    php82-curl \
-    php82-zlib \
-    php82-xml \
-    php82-phar \
-    php82-intl \
-    php82-dom \
-    php82-xmlwriter \
-    php82-mbstring \
-    php82-gd \
-    supervisor
+# 1. Install production system dependencies and clean up caches to keep it light
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zip \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-# Ensure symlinks for standard php execution names
-RUN ln -s /usr/bin/php82 /usr/bin/php
+# 2. Configure and install core extensions (PDO MySQL & GD for imagery uploads)
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo_mysql gd
 
-# FIX: Completely delete Alpine's default stub configurations to prevent overrides
-RUN rm -rf /etc/php82/php-fpm.d/* /etc/nginx/nginx.conf
+# 3. Enable Apache's mod_rewrite engine natively (crucial for API/MVC routing paths)
+RUN a2enmod rewrite
 
-# Configure Nginx & PHP-FPM cleanly
-COPY config/nginx.conf /etc/nginx/nginx.conf
-COPY config/fpm.conf /etc/php82/php-fpm.d/www.conf
-COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# 4. Point Apache's DocumentRoot right into your public directory framework
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
+# 5. Set up the working execution workspace
 WORKDIR /var/www/html
 
-# Copy the app contents into the WORKDIR
+# 6. Copy the application codes matching your clean workspace paths
 COPY . .
 
-# FIX: Create all necessary runtime directories and set ownership cleanly
-RUN mkdir -p /run/nginx /run/php /var/www/html/public/uploads && \
-    chown -R nginx:nginx /run/nginx /run/php /var/www/html && \
-    chmod -R 755 /var/www/html/public/uploads
+# 7. Set correct web server execution permissions for user assets
+RUN chown -R www-data:www-data /var/www/html
 
+# Apache exposes port 80 natively out-of-the-box
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["apache2-foreground"]
