@@ -1,11 +1,11 @@
 RewriteEngine On
 RewriteBase /
 
-# 🔥 FORCE EXCLUSION: If the request is for anything in the api folder, serve it directly
-RewriteCond %{REQUEST_URI} ^/api/ [NC]
+# EXCLUSIÓN TOTAL DE API: Deja pasar cualquier subcarpeta dentro de /api/
+RewriteCond %{REQUEST_URI} ^/api [NC]
 RewriteRule ^ - [L]
 
-# Global fallback router for clean standard pages
+# Enrutador global para páginas normales
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
