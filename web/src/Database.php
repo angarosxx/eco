@@ -19,8 +19,8 @@ class Database {
         $dbName   = getenv('DB_NAME') ?: 'eco_classifieds';
         $username = getenv('DB_USER') ?: 'user_prod_eco';
         $password = getenv('DB_PASSWORD') ?: 'U80wrNQF2r4V8F5109FD';
-        $useSsl   = getenv('DB_SSL') === 'true'; // This will evaluate to false natively now
-        
+        $useSsl   = getenv('DB_SSL') === 'false'; // This will evaluate to false natively now
+
             $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
             
             $options = [
