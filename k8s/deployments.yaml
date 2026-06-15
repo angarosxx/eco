@@ -20,28 +20,33 @@ spec:
         # Pulls the image built by your GitHub action workflow
         image: ghcr.io/angarosxx/eco:latest 
         imagePullPolicy: Always
-        #ports:
-        #- containerPort: 80
+        ports:
+        - containerPort: 80
         env:
         - name: DB_HOST
-          value: "mariadb-service.default.svc.cluster.local"
-            #secretKeyRef:
-        - name: DB_NAME
-          value: "eco_classifieds"
-        - name: DB_USER
-          valueFrom: 
-            secretKeyRef:
-              name: eco-marketplace-secrets
-              key: db-user
-        - name: DB_PASS
           valueFrom:
             secretKeyRef:
               name: eco-marketplace-secrets
-              #key: db-pass
-        #- name: DB_PORT
-        #  value: "3306"
-        #- name: DB_SSL
-        #  value: "true" # <--- FIXED: Changes encryption state to match your plain-text internal ClusterIP
+              key: db-host
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: eco-marketplace-secrets
+              key: db-name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: eco-marketplace-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: eco-marketplace-secrets
+              key: db-pass
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_SSL
+          value: "true" # <--- FIXED: Changes encryption state to match your plain-text internal ClusterIP
 ---
 apiVersion: v1
 kind: Service
@@ -53,7 +58,6 @@ spec:
   ports:
   - port: 80
     targetPort: 80
-    nodePort : 30083
     protocol: TCP
   selector:
     app: eco-web
