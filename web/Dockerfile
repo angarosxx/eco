@@ -24,7 +24,10 @@ RUN apk add --no-cache \
 # Ensure symlinks for standard php execution names
 RUN ln -s /usr/bin/php82 /usr/bin/php
 
-# Configure Nginx & PHP-FPM
+# FIX: Completely delete Alpine's default stub configurations to prevent overrides
+RUN rm -rf /etc/php82/php-fpm.d/* /etc/nginx/nginx.conf
+
+# Configure Nginx & PHP-FPM cleanly
 COPY config/nginx.conf /etc/nginx/nginx.conf
 COPY config/fpm.conf /etc/php82/php-fpm.d/www.conf
 COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
