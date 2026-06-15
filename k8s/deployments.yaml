@@ -46,7 +46,7 @@ spec:
         - name: DB_PORT
           value: "3306"
         - name: DB_SSL
-          value: "true"
+          value: "false" # <--- FIXED: Changes encryption state to match your plain-text internal ClusterIP
 ---
 apiVersion: v1
 kind: Service
