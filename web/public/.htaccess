@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# If the requested filename is not a physical directory, link, or file on disk
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-l
+
+# Send the entire URI request string straight down to your index framework handler
+RewriteRule ^(.*)$ index.php [QSA,L]
