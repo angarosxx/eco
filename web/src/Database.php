@@ -12,15 +12,15 @@ class Database {
      * Get the authenticated PDO connection instance (Singleton Pattern)
      */
     public static function getConnection(): PDO {
-        if (self::$instance === null) {
-            // Read values natively from the environment variables configured via Docker
-            $host     = getenv('DB_HOST') ?: 'b2c2b-db.tracexit.com';
-            $port     = getenv('DB_PORT') ?: '3306';
-            $dbName   = getenv('DB_NAME') ?: 'eco_classifieds';
-            $username = getenv('DB_USER') ?: '';
-            $password = getenv('DB_PASSWORD') ?: '';
-            $useSsl   = getenv('DB_SSL') === 'true';
-
+    if (self::$instance === null) {
+        // Use the injected environment variable, fallback to the native K8s internal DNS address
+        $host     = getenv('DB_HOST') ?: 'mariadb-central.default.svc.cluster.local';
+        $port     = getenv('DB_PORT') ?: '3306';
+        $dbName   = getenv('DB_NAME') ?: 'eco_classifieds';
+        $username = getenv('DB_USER') ?: 'user_prod_eco';
+        $password = getenv('DB_PASSWORD') ?: 'U80wrNQF2r4V8F5109FD';
+        $useSsl   = getenv('DB_SSL') === 'true'; // This will evaluate to false natively now
+        
             $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
             
             $options = [
