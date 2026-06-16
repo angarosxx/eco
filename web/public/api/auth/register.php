@@ -5,9 +5,29 @@ header('Content-Type: application/json');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Require your Composer autoloader or manually include your core files
-// depending on how your project structure boots classes
-require_once __DIR__ . '/../../../vendor/autoload.php'; 
+// 🔥 SMART NATIVE PSR-4 AUTOLOADER
+spl_autoload_register(function ($class) {
+    $prefix = 'Eco\\';
+    $base_dir = '/var/www/html/src/';
+
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
+
+    $relative_class = substr($class, $len);
+
+    // 🎯 SPECIAL RULE: If any script asks for Eco\Core\Database, redirect it to src/Database.php
+    if ($relative_class === 'Core\\Database') {
+        $file = $base_dir . 'Database.php';
+    } else {
+        $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+    }
+
+    if (file_exists($file)) {
+        require_once $file;
+    }
+});
 
 use Eco\Auth\RegisterHandler;
 
@@ -18,10 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    // 1. Instantiate your existing enterprise grade registration engine
+    // 1. Instantiate your registration engine
     $handler = new RegisterHandler();
     
-    // 2. Pass the entire $_POST array (it automatically sanitizes and chooses private vs company profiles!)
+    // 2. Pass the entire $_POST array (maps private vs company profiles seamlessly!)
     $result = $handler->register($_POST);
 
     if ($result['success'] === true) {
