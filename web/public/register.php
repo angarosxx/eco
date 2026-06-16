@@ -95,63 +95,74 @@
     </div>
 
     <script>
-        function toggleProfileFields(type) {
-            const privateFields = document.getElementById('fields-private');
-            const companyFields = document.getElementById('fields-company');
+    function toggleProfileFields(type) {
+        const privateFields = document.getElementById('fields-private');
+        const companyFields = document.getElementById('fields-company');
+        
+        if (type === 'private') {
+            privateFields.classList.remove('hidden');
+            companyFields.classList.add('hidden');
+        } else {
+            privateFields.classList.add('hidden');
+            companyFields.classList.remove('hidden');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const regSel = document.getElementById('region-selector');
+        const comSel = document.getElementById('comuna-selector');
+
+        try {
+            // 1. Fetch and load regions
+            const resReg = await fetch('/api/locations.php?action=regions');
+            const jsonReg = await resReg.json();
             
-            if (type === 'private') {
-                privateFields.classList.remove('hidden');
-                companyFields.classList.add('hidden');
-            } else {
-                privateFields.classList.add('hidden');
-                companyFields.classList.remove('hidden');
+            // 🎯 FIXED: Support both flat array payloads and envelope configurations safely
+            const regions = Array.isArray(jsonReg) ? jsonReg : (jsonReg.data || []);
+            
+            if (regions.length > 0) {
+                // Keep default placeholder
+                regSel.innerHTML = '<option value="">Selecciona Región</option>';
+                regions.forEach(r => {
+                    // Safe label fallback if database column 'roman_numeral' is omitted
+                    const label = r.roman_numeral ? `${r.roman_numeral} - ${r.name}` : r.name;
+                    regSel.innerHTML += `<option value="${r.id}">${label}</option>`;
+                });
             }
+        } catch (err) {
+            console.error("Error loading regions:", err);
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const regSel = document.getElementById('region-selector');
-            const comSel = document.getElementById('comuna-selector');
-
-            try {
-                // 1. Fetch and load regions (?action=regions) 
-                // Notice the layout filename fix: localtions.php
-                const resReg = await fetch('/api/locations.php?action=regions');
-                const jsonReg = await resReg.json();
-                
-                if(jsonReg.success && Array.isArray(jsonReg.data)) {
-                    jsonReg.data.forEach(r => {
-                        regSel.innerHTML += `<option value="${r.id}">${r.roman_numeral} - ${r.name}</option>`;
-                    });
-                }
-            } catch (err) {
-                console.error("Error loading regions:", err);
+        // 2. Listen for region shifts to reload Comunas
+        regSel.addEventListener('change', async () => {
+            if (!regSel.value) {
+                comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
+                return;
             }
 
-            // 2. Listen for region shifts to reload Comunas (?action=comunas&region_id=X)
-            regSel.addEventListener('change', async () => {
-                if(!regSel.value) {
-                    comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
-                    return;
-                }
+            comSel.innerHTML = '<option value="">Cargando comunas...</option>';
 
-                comSel.innerHTML = '<option value="">Cargando comunas...</option>';
-
-                try {
-                    const resCom = await fetch(`/api/locations.php?action=comunas&region_id=${regSel.value}`);
-                    const jsonCom = await resCom.json();
-                    
-                    comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
-                    if(jsonCom.success && Array.isArray(jsonCom.data)) {
-                        jsonCom.data.forEach(c => {
-                            comSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                        });
-                    }
-                } catch (err) {
-                    console.error("Error loading comunas:", err);
-                    comSel.innerHTML = '<option value="">Error loading data</option>';
+            try {
+                const resCom = await fetch(`/api/locations.php?action=comunas&region_id=${regSel.value}`);
+                const jsonCom = await resCom.json();
+                
+                // 🎯 FIXED: Map payload structure dynamically to match flat backend lists
+                const comunas = Array.isArray(jsonCom) ? jsonCom : (jsonCom.data || []);
+                
+                comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
+                if (comunas.length > 0) {
+                    comunas.forEach(c => {
+                        comSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                    });
+                } else {
+                    comSel.innerHTML = '<option value="">No se encontraron comunas</option>';
                 }
-            });
+            } catch (err) {
+                console.error("Error loading comunas:", err);
+                comSel.innerHTML = '<option value="">Error loading data</option>';
+            }
         });
-    </script>
+    });
+</script>
 </body>
 </html>
