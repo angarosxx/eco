@@ -5,30 +5,23 @@ header('Content-Type: application/json');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// 🔥 CUSTOM PSR-4 AUTOLOADER (Replaces Composer)
+// 🔥 NATIVE PSR-4 NAMESPACE AUTOLOADER
 spl_autoload_register(function ($class) {
-    // Project-specific namespace prefix
     $prefix = 'Eco\\';
+    
+    // Hardcoded absolute container path matching your ls -la output exactly
+    $base_dir = '/var/www/html/src/';
 
-    // Base directory for the namespace prefix (pointing back to your src folder)
-    // Adjust the number of ../ depending on where your 'src' folder lives relative to this file
-    $base_dir = __DIR__ . '/../../../src/';
-
-    // Does the class use the namespace prefix?
     $len = strlen($prefix);
     if (strncmp($prefix, $class, $len) !== 0) {
-        // No, move to the next registered autoloader
         return;
     }
 
-    // Get the relative class name
     $relative_class = substr($class, $len);
-
-    // Replace the namespace prefix with the base directory, replace namespace
-    // separators with directory separators in the relative class name, append with .php
+    
+    // Converts Eco\Core\Database -> /var/www/html/src/Core/Database.php
     $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
 
-    // If the file exists, require it
     if (file_exists($file)) {
         require_once $file;
     }
@@ -46,7 +39,7 @@ try {
     // 1. Instantiate your registration engine
     $handler = new RegisterHandler();
     
-    // 2. Pass the entire $_POST array
+    // 2. Pass the entire $_POST array (maps private vs company seamlessly!)
     $result = $handler->register($_POST);
 
     if ($result['success'] === true) {
@@ -62,7 +55,7 @@ try {
         header('Location: /dashboard.php');
         exit;
     } else {
-        // Return verification errors gracefully
+        // Return validation errors gracefully
         http_response_code(400);
         echo json_encode($result);
         exit;
