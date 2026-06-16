@@ -5,15 +5,34 @@ header('Content-Type: application/json');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// 🔥 FIXED: Dynamically search the exact locations where vendor/autoload could be mounted
-if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/../vendor/autoload.php')) {
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/../vendor/autoload.php';
-} elseif (file_exists($_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php')) {
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
-} else {
-    // Ultimate fallback if it's nested deep inside your public workspace
-    require_once __DIR__ . '/../../../../vendor/autoload.php'; 
-}
+// 🔥 CUSTOM PSR-4 AUTOLOADER (Replaces Composer)
+spl_autoload_register(function ($class) {
+    // Project-specific namespace prefix
+    $prefix = 'Eco\\';
+
+    // Base directory for the namespace prefix (pointing back to your src folder)
+    // Adjust the number of ../ depending on where your 'src' folder lives relative to this file
+    $base_dir = __DIR__ . '/../../../src/';
+
+    // Does the class use the namespace prefix?
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        // No, move to the next registered autoloader
+        return;
+    }
+
+    // Get the relative class name
+    $relative_class = substr($class, $len);
+
+    // Replace the namespace prefix with the base directory, replace namespace
+    // separators with directory separators in the relative class name, append with .php
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+
+    // If the file exists, require it
+    if (file_exists($file)) {
+        require_once $file;
+    }
+});
 
 use Eco\Auth\RegisterHandler;
 
@@ -24,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    // 1. Instantiate your existing enterprise grade registration engine
+    // 1. Instantiate your registration engine
     $handler = new RegisterHandler();
     
     // 2. Pass the entire $_POST array
