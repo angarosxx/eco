@@ -5,9 +5,15 @@ header('Content-Type: application/json');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Require your Composer autoloader or manually include your core files
-// depending on how your project structure boots classes
-require_once __DIR__ . '/../../../vendor/autoload.php'; 
+// 🔥 FIXED: Dynamically search the exact locations where vendor/autoload could be mounted
+if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/../vendor/autoload.php')) {
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/../vendor/autoload.php';
+} elseif (file_exists($_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php')) {
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+} else {
+    // Ultimate fallback if it's nested deep inside your public workspace
+    require_once __DIR__ . '/../../../../vendor/autoload.php'; 
+}
 
 use Eco\Auth\RegisterHandler;
 
@@ -21,7 +27,7 @@ try {
     // 1. Instantiate your existing enterprise grade registration engine
     $handler = new RegisterHandler();
     
-    // 2. Pass the entire $_POST array (it automatically sanitizes and chooses private vs company profiles!)
+    // 2. Pass the entire $_POST array
     $result = $handler->register($_POST);
 
     if ($result['success'] === true) {
