@@ -1,0 +1,10 @@
+{
+    "name": "eco/ecomercio",
+    "description": "Ecomercio Platform Core",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Eco\\": "src/"
+        }
+    }
+}
