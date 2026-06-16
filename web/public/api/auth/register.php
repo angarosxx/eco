@@ -5,9 +5,17 @@ header('Content-Type: application/json');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+<<<<<<< HEAD
 // 🔥 SMART NATIVE PSR-4 AUTOLOADER
 spl_autoload_register(function ($class) {
     $prefix = 'Eco\\';
+=======
+// 🔥 NATIVE PSR-4 NAMESPACE AUTOLOADER
+spl_autoload_register(function ($class) {
+    $prefix = 'Eco\\';
+    
+    // Hardcoded absolute container path matching your ls -la output exactly
+>>>>>>> 6ada6f088084e4d9273afbce35fcf83256937840
     $base_dir = '/var/www/html/src/';
 
     $len = strlen($prefix);
@@ -16,6 +24,7 @@ spl_autoload_register(function ($class) {
     }
 
     $relative_class = substr($class, $len);
+<<<<<<< HEAD
 
     // 🎯 SPECIAL RULE: If any script asks for Eco\Core\Database, redirect it to src/Database.php
     if ($relative_class === 'Core\\Database') {
@@ -23,6 +32,11 @@ spl_autoload_register(function ($class) {
     } else {
         $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
     }
+=======
+    
+    // Converts Eco\Core\Database -> /var/www/html/src/Core/Database.php
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+>>>>>>> 6ada6f088084e4d9273afbce35fcf83256937840
 
     if (file_exists($file)) {
         require_once $file;
@@ -41,7 +55,11 @@ try {
     // 1. Instantiate your registration engine
     $handler = new RegisterHandler();
     
+<<<<<<< HEAD
     // 2. Pass the entire $_POST array (maps private vs company profiles seamlessly!)
+=======
+    // 2. Pass the entire $_POST array (maps private vs company seamlessly!)
+>>>>>>> 6ada6f088084e4d9273afbce35fcf83256937840
     $result = $handler->register($_POST);
 
     if ($result['success'] === true) {
@@ -57,7 +75,7 @@ try {
         header('Location: /dashboard.php');
         exit;
     } else {
-        // Return verification errors gracefully
+        // Return validation errors gracefully
         http_response_code(400);
         echo json_encode($result);
         exit;

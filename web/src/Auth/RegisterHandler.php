@@ -2,6 +2,15 @@
 
 namespace Eco\Auth;
 
+//  ADD THIS MANUALLY HERE TO FORCE LAZY LOADING IF AUTOLOADER GETS CACHED
+if (!class_exists('Eco\Core\Database') && file_exists(__DIR__ . '/../Database.php')) {
+    require_once __DIR__ . '/../Database.php';
+    // Create an alias so Eco\Core\Database maps straight to Eco\Database if needed
+    if (class_exists('Eco\Database')) {
+        class_alias('Eco\Database', 'Eco\Core\Database');
+    }
+}
+
 use Eco\Core\Database;
 use PDO;
 use Exception;
