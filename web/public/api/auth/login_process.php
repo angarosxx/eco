@@ -1,9 +1,13 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+// Ensure headers are completely clean
+if (session_status() === PHP_SESSION_ACTIVE) {
+    session_write_close(); // Release lock
 }
+session_start();
 
 header('Content-Type: application/json; charset=utf-8');
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', '0');
 
 // Absolute safety net against structural warnings leaking into response streams
 error_reporting(E_ERROR | E_PARSE);
