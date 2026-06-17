@@ -94,75 +94,125 @@
         </div>
     </div>
 
+    <div id="alert-banner" class="hidden mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 flex items-center gap-2 animate-fade-in">
+    <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+    <span id="alert-message"></span>
+</div>
+
 <script>
+    // 1. Toggle Account Profiles View Layout
     function toggleProfileFields(type) {
         const privateFields = document.getElementById('fields-private');
         const companyFields = document.getElementById('fields-company');
         
         if (type === 'private') {
-            privateFields.classList.remove('hidden');
-            companyFields.classList.add('hidden');
+            privateFields?.classList.remove('hidden');
+            companyFields?.classList.add('hidden');
         } else {
-            privateFields.classList.add('hidden');
-            companyFields.classList.remove('hidden');
+            privateFields?.classList.add('hidden');
+            companyFields?.classList.remove('hidden');
         }
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    // 2. Encapsulated Location API Layer
+    const LocationAPI = {
+        async fetchRegions() {
+            const res = await fetch('/api/locations.php?action=regions');
+            if (!res.ok) throw new Error('Failed to load regions');
+            return res.json();
+        },
+        async fetchComunas(regionId) {
+            const res = await fetch(`/api/locations.php?action=comunas&region_id=${regionId}`);
+            if (!res.ok) throw new Error('Failed to load comunas');
+            return res.json();
+        }
+    };
+
+    // 3. Orchestration Engine
+    document.addEventListener('DOMContentLoaded', () => {
         const regSel = document.getElementById('region-selector');
         const comSel = document.getElementById('comuna-selector');
+        const regForm = document.getElementById('registration-form');
+        const alertBanner = document.getElementById('alert-banner');
+        const alertMessage = document.getElementById('alert-message');
 
-        try {
-            // 1. Fetch and load regions
-            const resReg = await fetch('/api/locations.php?action=regions');
-            const jsonReg = await resReg.json();
-            
-            // 🎯 FIXED: Support both flat array payloads and envelope configurations safely
-            const regions = Array.isArray(jsonReg) ? jsonReg : (jsonReg.data || []);
-            
-            if (regions.length > 0) {
-                // Keep default placeholder
+        const showAlert = (msg) => {
+            alertMessage.textContent = msg;
+            alertBanner.classList.remove('hidden');
+            alertBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+
+        const hideAlert = () => alertBanner.classList.add('hidden');
+
+        // Populate Regions Dropdown
+        LocationAPI.fetchRegions()
+            .then(data => {
+                const regions = Array.isArray(data) ? data : (data.data || []);
                 regSel.innerHTML = '<option value="">Selecciona Región</option>';
                 regions.forEach(r => {
-                    // Safe label fallback if database column 'roman_numeral' is omitted
                     const label = r.roman_numeral ? `${r.roman_numeral} - ${r.name}` : r.name;
                     regSel.innerHTML += `<option value="${r.id}">${label}</option>`;
                 });
-            }
-        } catch (err) {
-            console.error("Error loading regions:", err);
-        }
+            })
+            .catch(err => console.error("Location init failed:", err));
 
-        // 2. Listen for region shifts to reload Comunas
-        regSel.addEventListener('change', async () => {
+        // Cascade Dynamic Comunas Dropdown
+        regSel?.addEventListener('change', async () => {
             if (!regSel.value) {
                 comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
                 return;
             }
-
             comSel.innerHTML = '<option value="">Cargando comunas...</option>';
+            
+            try {
+                const data = await LocationAPI.fetchComunas(regSel.value);
+                const comunas = Array.isArray(data) ? data : (data.data || []);
+                comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
+                comunas.forEach(c => {
+                    comSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+            } catch (err) {
+                comSel.innerHTML = '<option value="">Error cargando comunas</option>';
+            }
+        });
+
+        // Professional AJAX Form Interception 
+        regForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+
+            const submitBtn = regForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            }
 
             try {
-                const resCom = await fetch(`/api/locations.php?action=comunas&region_id=${regSel.value}`);
-                const jsonCom = await resCom.json();
-                
-                // 🎯 FIXED: Map payload structure dynamically to match flat backend lists
-                const comunas = Array.isArray(jsonCom) ? jsonCom : (jsonCom.data || []);
-                
-                comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
-                if (comunas.length > 0) {
-                    comunas.forEach(c => {
-                        comSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                    });
+                const response = await fetch('/api/auth/process_register.php', {
+                    method: 'POST',
+                    body: new FormData(regForm)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    window.location.href = result.redirect;
                 } else {
-                    comSel.innerHTML = '<option value="">No se encontraron comunas</option>';
+                    showAlert(result.message || 'Error de registro.');
                 }
             } catch (err) {
-                console.error("Error loading comunas:", err);
-                comSel.innerHTML = '<option value="">Error loading data</option>';
+                showAlert('Error crítico al conectar con el servidor de autenticación.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
             }
         });
     });
-</script>    
+</script>
+    
 </body>
 </html>
