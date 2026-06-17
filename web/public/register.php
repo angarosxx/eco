@@ -17,7 +17,7 @@
             <h2 class="text-2xl font-bold tracking-tight text-gray-950 mb-1">Crea tu cuenta en eco.cl</h2>
             <p class="text-sm text-gray-500 mb-6">Únete al marketplace B2C2B más rápido de Chile.</p>
 
-            <form action="/api/auth/process_register.php" method="POST" class="space-y-6">
+            <form id="registration-form" action="/api/auth/process_register.php" method="POST" class="space-y-6">
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Perfil</label>
