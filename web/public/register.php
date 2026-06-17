@@ -94,7 +94,7 @@
         </div>
     </div>
 
-    <script>
+<script>
     function toggleProfileFields(type) {
         const privateFields = document.getElementById('fields-private');
         const companyFields = document.getElementById('fields-company');
@@ -163,6 +163,6 @@
             }
         });
     });
-</script>
+</script>    
 </body>
 </html>
