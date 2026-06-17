@@ -111,13 +111,18 @@ class RegisterHandler {
         ");
         
         $stmt->execute([
-            ':user_id'        => $userId,
-            ':company_name'   => strip_tags($data['company_name']),
-            ':tax_id_vat'     => strip_tags($data['tax_id_vat']), // E.g., RUT de Empresa chilena
-            ':phone_business' => strip_tags($data['phone_business'] ?? ''),
-            ':website_url'    => filter_var($data['website_url'] ?? '', FILTER_VALIDATE_URL) ?: null,
-            ':address'        => strip_tags($data['address'] ?? ''),
-            ':comuna_id'      => (int)$data['comuna_id']
-        ]);
+    ':user_id'        => $userId,
+    ':company_name'   => strip_tags($data['company_name'] ?? ''),
+    ':tax_id_vat'     => strip_tags($data['tax_id_vat'] ?? ''), // RUT Empresa
+    ':phone_business' => strip_tags($data['phone_business'] ?? ''),
+    
+    // ✅ Safe validation wrapper for optional website URLs
+    ':website_url'    => (!empty($data['website_url']) && filter_var($data['website_url'], FILTER_VALIDATE_URL)) ? $data['website_url'] : null,
+    
+    ':address'        => strip_tags($data['address'] ?? ''),
+    
+    // ✅ Prevents 0 from breaking Foreign Key checks if empty
+    ':comuna_id'      => !empty($data['comuna_id']) ? (int)$data['comuna_id'] : null
+]);
     }
 }

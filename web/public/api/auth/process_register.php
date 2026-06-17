@@ -1,7 +1,12 @@
 <?php
+// 1. Initialize session storage before any output occurs
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 header('Content-Type: application/json');
 
-// Pull down the Composer automatic map ecosystem
+// 2. Load the autoloader map
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use Eco\Auth\RegisterHandler;
@@ -17,7 +22,7 @@ try {
     $result = $handler->register($_POST);
 
     if ($result['success'] === true) {
-        if (session_status() == PHP_SESSION_NONE) { session_start(); }
+        // 3. Populate global user tracking arrays cleanly
         $_SESSION['user_id'] = $result['user_id'];
         $_SESSION['account_type'] = $result['account_type'];
         $_SESSION['user_name'] = strip_tags($_POST['first_name'] ?? $_POST['company_name'] ?? 'Usuario');
