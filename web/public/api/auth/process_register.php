@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 
 // Pull down the Composer automatic map ecosystem
-require_once __DIR__ . '/../../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use Eco\Auth\RegisterHandler;
 
