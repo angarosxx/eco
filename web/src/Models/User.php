@@ -22,5 +22,5 @@ class User {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
         return $user ? $user : null;
-    }
+    
 }
