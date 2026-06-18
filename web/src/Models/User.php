@@ -12,15 +12,14 @@ class User {
         $this->db = Database::getConnection();
     }
 
-    public function findByEmail(string $email) {
+    /**
+     * Locate a user record by their unique email identifier
+     */
+    public function findByEmail(string $email): ?array {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
-        $stmt->execute([':email' => $email]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-        
         $stmt->execute([':email' => $email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        return $user ? $user : null;
-    
+        return $user ?: null;
+    }
 }
