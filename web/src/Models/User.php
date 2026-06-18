@@ -9,21 +9,14 @@ class User {
     private $db;
 
     public function __construct() {
-        $this->db = Database::getInstance()->getConnection();
+        $this->db = Database::getConnection();
     }
 
-    /**
-     * Locate a unique system account record by its email address
-     * * @param string $email
-     * @return array|null
-     */
-    public function findByEmail(string $email): ?array {
-        $stmt = $this->db->prepare("
-            SELECT id, password_hash, account_type, is_active 
-            FROM users 
-            WHERE email = :email 
-            LIMIT 1
-        ");
+    public function findByEmail(string $email) {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt->execute([':email' => $email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
         
         $stmt->execute([':email' => $email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
