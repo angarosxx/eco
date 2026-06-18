@@ -1,17 +1,14 @@
 <?php
-// Ensure headers are completely clean
-if (session_status() === PHP_SESSION_ACTIVE) {
-    session_write_close(); // Release lock
+// Set explicit session cookie configuration before starting the session
+ini_set('session.cookie_path', '/');
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
-session_start();
 
 header('Content-Type: application/json; charset=utf-8');
-//error_reporting(E_ERROR | E_PARSE);
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-
-// Absolute safety net against structural warnings leaking into response streams
-//error_reporting(E_ERROR | E_PARSE);
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
@@ -30,9 +27,11 @@ try {
     $result = $authEngine->authenticate($_POST);
 
     if ($result['success'] === true) {
-        // Provision access validation matrices inside secure PHP memory
         $_SESSION['user_id'] = $result['user_id'];
         $_SESSION['account_type'] = $result['account_type'];
+        
+        // FORCE the session to write data right now before sending the network response
+        session_write_close();
         
         echo json_encode(['success' => true, 'redirect' => '/dashboard.php']);
         exit;
@@ -44,6 +43,6 @@ try {
 
 } catch (\Exception $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Fallo crítico del servidor de autenticación.']);
+    echo json_encode(['success' => false, 'message' => 'Fallo crítico: ' . $e->getMessage()]);
     exit;
 }
