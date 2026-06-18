@@ -36,30 +36,68 @@
     <h3 class="sm:col-span-2 text-md font-bold text-blue-900 border-b border-blue-200 pb-2">Especificaciones del Vehículo</h3>
     
     <div>
-        <label class="block text-sm font-medium text-gray-700">Marca</label>
-        <select id="vehicle_brand" name="vehicle_brand" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
-    <option value="">Seleccione Marca</option>
-    <option value="1">Toyota</option>
-    <option value="2">Hyundai</option>
-    <option value="3">Chevrolet</option>
-    <option value="4">Nissan</option>
-    <option value="5">Suzuki</option>
-    <option value="6">Ford</option>
-    <option value="7">Mitsubishi</option>
-    <option value="8">BMW</option>
-    <option value="9">Audi</option>
-    <option value="10">Mercedes-Benz</option>
-    <option value="11">Volkswagen</option>
-    <option value="12">Volvo</option>
-    <option value="13">Peugeot</option>
-    <option value="14">Citroën</option>
-    <option value="15">Kia</option>
-    <option value="16">Maxus</option>
-    <option value="17">Great Wall</option>
-    <option value="18">Mahindra</option>
-    <option value="19">Scania (Camiones)</option>
-</select>
-    </div>
+    <label class="block text-sm font-medium text-gray-700">Marca</label>
+    <select id="vehicle_brand" name="vehicle_brand" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
+        <option value="">Seleccione Marca</option>
+        <optgroup label="Americanas">
+            <option value="1">Ford</option>
+            <option value="2">Chevrolet</option>
+            <option value="3">Dodge</option>
+            <option value="4">Jeep</option>
+            <option value="5">Tesla</option>
+            <option value="6">GMC</option>
+            <option value="7">Cadillac</option>
+            <option value="8">Lincoln</option>
+        </optgroup>
+        <optgroup label="Japonesas">
+            <option value="9">Toyota</option>
+            <option value="10">Honda</option>
+            <option value="11">Nissan</option>
+            <option value="12">Mazda</option>
+            <option value="13">Mitsubishi</option>
+            <option value="14">Subaru</option>
+            <option value="15">Suzuki</option>
+            <option value="16">Lexus</option>
+            <option value="17">Isuzu</option>
+        </optgroup>
+        <optgroup label="Alemanas">
+            <option value="18">Volkswagen</option>
+            <option value="19">BMW</option>
+            <option value="20">Mercedes-Benz</option>
+            <option value="21">Audi</option>
+            <option value="22">Porsche</option>
+        </optgroup>
+        <optgroup label="Coreanas">
+            <option value="23">Hyundai</option>
+            <option value="24">Kia</option>
+            <option value="25">Genesis</option>
+        </optgroup>
+        <optgroup label="Chinas">
+            <option value="26">BYD</option>
+            <option value="27">Chery</option>
+            <option value="28">MG</option>
+            <option value="29">Haval</option>
+            <option value="30">JAC</option>
+            <option value="31">Geely</option>
+        </optgroup>
+        <optgroup label="Italianas">
+            <option value="32">Fiat</option>
+            <option value="33">Alfa Romeo</option>
+            <option value="34">Ferrari</option>
+            <option value="35">Lamborghini</option>
+        </optgroup>
+        <optgroup label="Otras Europeas">
+            <option value="36">Renault</option>
+            <option value="37">Peugeot</option>
+            <option value="38">Citroën</option>
+            <option value="39">Volvo</option>
+            <option value="40">Land Rover</option>
+            <option value="41">Jaguar</option>
+            <option value="42">Bentley</option>
+            <option value="43">Rolls-Royce</option>
+        </optgroup>
+    </select>
+</div>
 
     <div>
         <label class="block text-sm font-medium text-gray-700">Modelo</label>
