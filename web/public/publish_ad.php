@@ -32,7 +32,63 @@
                         <option value="5">Servicios</option>
                     </select>
                 </div>
+                <div id="vehicle-spec-panel" class="hidden sm:col-span-2 bg-blue-50/50 p-5 rounded-xl border border-blue-100 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <h3 class="sm:col-span-2 text-md font-bold text-blue-900 border-b border-blue-200 pb-2">Especificaciones del Vehículo</h3>
+    
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Marca</label>
+        <select id="vehicle_brand" name="vehicle_brand" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
+    <option value="">Seleccione Marca</option>
+    <option value="1">Toyota</option>
+    <option value="2">Hyundai</option>
+    <option value="3">Chevrolet</option>
+    <option value="4">Nissan</option>
+    <option value="5">Suzuki</option>
+    <option value="6">Ford</option>
+    <option value="7">Mitsubishi</option>
+    <option value="8">BMW</option>
+    <option value="9">Audi</option>
+    <option value="10">Mercedes-Benz</option>
+    <option value="11">Volkswagen</option>
+    <option value="12">Volvo</option>
+    <option value="13">Peugeot</option>
+    <option value="14">Citroën</option>
+    <option value="15">Kia</option>
+    <option value="16">Maxus</option>
+    <option value="17">Great Wall</option>
+    <option value="18">Mahindra</option>
+    <option value="19">Scania (Camiones)</option>
+</select>
+    </div>
 
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Modelo</label>
+        <select id="vehicle_model" name="vehicle_model" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm" disabled>
+            <option value="">Seleccione una marca primero</option>
+        </select>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Año</label>
+        <input type="number" name="vehicle_year" min="1950" max="2027" placeholder="Ej: 2020" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Tipo de Motor / Combustible</label>
+        <select name="vehicle_engine" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <option value="">Seleccione Combustible</option>
+            <option value="bencina">Bencina</option>
+            <option value="diesel">Diesel</option>
+            <option value="hibrido">Híbrido</option>
+            <option value="electrico">Eléctrico</option>
+        </select>
+    </div>
+
+    <div class="sm:col-span-2">
+        <label class="block text-sm font-medium text-gray-700">Kilometraje (Km)</label>
+        <input type="number" name="vehicle_km" min="0" placeholder="Ej: 45000" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
+    </div>
+</div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Tipo de Anuncio</label>
                     <select id="ad_type" name="ad_type" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm">
@@ -82,6 +138,64 @@
     </div>
 
     <script>
+        // Target Elements
+const categorySelect = document.querySelector('select[name="category_id"]');
+const vehiclePanel = document.getElementById('vehicle-spec-panel');
+const brandSelect = document.getElementById('vehicle_brand');
+const modelSelect = document.getElementById('vehicle_model');
+
+// Listen for Category Selections (Category 1 = Vehículos)
+categorySelect.addEventListener('change', () => {
+    // If user picks Category 1 (Vehículos), open the extra panel
+    if (categorySelect.value === "1") {
+        vehiclePanel.classList.remove('hidden');
+        setVehicleFieldsRequired(true);
+    } else {
+        vehiclePanel.classList.add('hidden');
+        setVehicleFieldsRequired(false);
+    }
+});
+
+// Set validation helper
+const setVehicleFieldsRequired = (isRequired) => {
+    vehiclePanel.querySelectorAll('input, select').forEach(field => {
+        field.required = isRequired;
+    });
+};
+
+// Handle Dynamic Model Fetching when Brand is chosen
+brandSelect.addEventListener('change', async () => {
+    const brandId = brandSelect.value;
+    modelSelect.innerHTML = '<option value="">Cargando modelos...</option>';
+    modelSelect.disabled = true;
+
+    if (!brandId) {
+        modelSelect.innerHTML = '<option value="">Seleccione una marca primero</option>';
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/vehicles/models.php?brand_id=${brandId}`);
+        const models = await res.json();
+
+        modelSelect.innerHTML = '<option value="">Seleccione Modelo</option>';
+        models.forEach(model => {
+            const opt = document.createElement('option');
+            opt.value = model.id;
+            opt.textContent = model.name;
+            modelSelect.appendChild(opt);
+        });
+        modelSelect.disabled = false;
+    } catch (err) {
+        modelSelect.innerHTML = '<option value="">Error al cargar modelos</option>';
+    }
+});
+
+
+
+
+
+
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('ad-form');
             const alertBanner = document.getElementById('alert-banner');
