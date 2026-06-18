@@ -22,8 +22,20 @@
                 </div>
 
                 <div>
+                    <label class="block text-sm font-medium text-gray-700">Categoría</label>
+                    <select name="category_id" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        <option value="">Seleccione Categoría</option>
+                        <option value="1">Vehículos</option>
+                        <option value="2">Inmuebles / Propiedades</option>
+                        <option value="3">Tecnología / Electrónica</option>
+                        <option value="4">Herramientas e Industria</option>
+                        <option value="5">Servicios</option>
+                    </select>
+                </div>
+
+                <div>
                     <label class="block text-sm font-medium text-gray-700">Tipo de Anuncio</label>
-                    <select name="ad_type" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm">
+                    <select id="ad_type" name="ad_type" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm">
                         <option value="">Seleccione una opción</option>
                         <option value="vendo">Vendo</option>
                         <option value="compro">Compro</option>
@@ -31,9 +43,19 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Precio (CLP)</label>
-                    <input type="number" name="price" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm">
+                <div class="sm:col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-200 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label id="price-label" class="block text-sm font-medium text-gray-700">Precio</label>
+                        <input type="number" id="price-input" name="price" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm">
+                    </div>
+                    
+                    <div id="price-type-wrapper" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700">Condición de Precio</label>
+                        <select id="price_type" name="price_type" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <option value="fixed">CLP Valor Fijo</option>
+                            <option value="contact">Contactar por precio</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="sm:col-span-2">
@@ -42,7 +64,7 @@
                 </div>
 
                 <div class="sm:col-span-2 space-y-2">
-                    <label class="block text-sm font-medium text-gray-700">Imágenes del Anuncio (Mínimo 1, Máximo 5)</label>
+                    <label class="block text-sm font-medium text-gray-700">Imágenes del Anuncio (Máximo 5)</label>
                     <input type="file" name="images[]" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     <input type="file" name="images[]" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     <input type="file" name="images[]" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
@@ -64,20 +86,60 @@
             const form = document.getElementById('ad-form');
             const alertBanner = document.getElementById('alert-banner');
             const alertMessage = document.getElementById('alert-message');
+            
+            const adTypeSelect = document.getElementById('ad_type');
+            const priceLabel = document.getElementById('price-label');
+            const priceInput = document.getElementById('price-input');
+            const priceTypeWrapper = document.getElementById('price-type-wrapper');
+            const priceTypeSelect = document.getElementById('price_type');
+
+            // Handle the UI state changes based on Ad Type selection
+            adTypeSelect.addEventListener('change', () => {
+                const type = adTypeSelect.value;
+                
+                // Reset defaults
+                priceTypeWrapper.classList.add('hidden');
+                priceInput.disabled = false;
+                priceInput.required = true;
+                priceLabel.textContent = "Precio (CLP)";
+
+                if (type === 'vendo') {
+                    priceTypeWrapper.classList.remove('hidden');
+                    handlePriceTypeCondition();
+                } else if (type === 'compro') {
+                    priceLabel.textContent = "Precio Máximo Presupuesto (CLP)";
+                } else if (type === 'arriendo') {
+                    priceLabel.textContent = "Precio Arriendo Mensual (CLP)";
+                }
+            });
+
+            // Toggle input behavior if user selects "Contact for price"
+            const handlePriceTypeCondition = () => {
+                if (priceTypeSelect.value === 'contact') {
+                    priceInput.value = '';
+                    priceInput.disabled = true;
+                    priceInput.required = false;
+                } else {
+                    priceInput.disabled = false;
+                    priceInput.required = true;
+                }
+            };
+            priceTypeSelect.addEventListener('change', handlePriceTypeCondition);
 
             form?.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 alertBanner.classList.add('hidden');
-
+                
+                // Enable temporarily so FormData collects the field value even if disabled
+                priceInput.disabled = false; 
                 const formData = new FormData(form);
 
                 try {
                     const response = await fetch('/api/ads/create.php', {
                         method: 'POST',
-                        body: formData // Automatically encodes multipart boundaries for file array matrices
+                        body: formData
                     });
 
-                    // If backend crashes with PHP error, grab the text directly
                     if (!response.ok) {
                         const errText = await response.text();
                         throw new Error(errText || 'Error en el servidor backend.');
@@ -87,7 +149,7 @@
                     if (result.success) {
                         window.location.href = '/dashboard.php';
                     } else {
-                        alertMessage.textContent = result.message || 'Error al guardar.';
+                        alertMessage.textContent = result.message || 'Error al guardar el anuncio.';
                         alertBanner.classList.remove('hidden');
                     }
                 } catch (err) {
