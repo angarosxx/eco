@@ -1,19 +1,30 @@
 <?php
-// ── 1. CONFIGURACIÓN DE LA BASE DE DATOS (BACKEND) ──
-$db_host = 'localhost';
-$db_name = 'tu_base_datos';
-$db_user = 'tu_usuario';
-$db_pass = 'tu_password';
+// 1. Cargar el autoloader de Composer (subiendo los niveles correspondientes)
+require_once __DIR__ . '/../vendor/autoload.php'; 
+
+// 2. Inicializar Dotenv para leer el archivo .env desde la raíz (/var/www/html)
+// Ajusta la ruta de abajo de modo que apunte a la carpeta que contiene tu archivo .env
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->safeLoad();
+
+// 3. Configuración de la Base de Datos usando variables de entorno
+$db_host = $_ENV['DB_HOST'] ?? 'localhost';
+$db_name = $_ENV['DB_NAME'] ?? '';
+$db_user = $_ENV['DB_USER'] ?? '';
+$db_pass = $_ENV['DB_PASS'] ?? '';
 
 try {
     $pdo = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8", $db_user, $db_pass, [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO:: some_core_setting_if_needed => true // Opcional
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
 } catch (PDOException $e) {
-    die("Error de conexión: " . $e->getMessage());
+    // En producción es mejor registrar el error en logs y mostrar un mensaje genérico
+    error_log("Error de conexión: " . $e->getMessage());
+    die("Error interno del servidor. Por favor, intente más tarde.");
 }
+
+// ── 2. PROCESAR PETICIÓN DE BÚSQUEDA (El resto de tu código sigue igual...)
 
 // ── 2. PROCESAR PETICIÓN DE BÚSQUEDA (AJAX / FETCH) ──
 if (isset($_GET['action']) && $_GET['action'] === 'buscar') {
