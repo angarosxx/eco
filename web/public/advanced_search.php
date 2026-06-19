@@ -94,7 +94,7 @@ try {
             <option value="">Todas las Marcas</option>
             <?php foreach ($listaMarcas as $m): ?>
                 <option value="<?php echo htmlspecialchars($m); ?>"><?php echo htmlspecialchars($m); ?></option>
-            <?php endphp; ?>
+            <?php endforeach; ?>
         </select>
         
         <input type="text" id="f-modelo" placeholder="Modelo..." oninput="buscar()">
