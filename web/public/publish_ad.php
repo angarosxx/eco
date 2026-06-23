@@ -213,14 +213,16 @@ brandSelect.addEventListener('change', async () => {
     }
 
     try {
-        const res = await fetch(`/api/vehicles/models.php?brand_id=${brandId}`);
+        // CORRECCIÓN 1: Cambiado 'brand_id' por 'marca_id' para que el backend lo reciba bien
+        const res = await fetch(`/api/vehicles/models.php?marca_id=${brandId}`);
         const models = await res.json();
 
         modelSelect.innerHTML = '<option value="">Seleccione Modelo</option>';
         models.forEach(model => {
             const opt = document.createElement('option');
             opt.value = model.id;
-            opt.textContent = model.name;
+            // CORRECCIÓN 2: Cambiado 'model.name' por 'model.nombre' (coincidiendo con MariaDB)
+            opt.textContent = model.nombre; 
             modelSelect.appendChild(opt);
         });
         modelSelect.disabled = false;
@@ -228,7 +230,6 @@ brandSelect.addEventListener('change', async () => {
         modelSelect.innerHTML = '<option value="">Error al cargar modelos</option>';
     }
 });
-
 
 
 
