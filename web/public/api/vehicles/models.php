@@ -9,20 +9,18 @@ if ($marca_id <= 0) {
     exit;
 }
 
-// Variables de entorno nativas de tu Pod de Kubernetes
+// Variables de entorno nativas inyectadas por tu clúster
 $db_host = $_ENV['DB_HOST'] ?? 'localhost';
-$db_name = $_ENV['DB_DATABASE'] ?? ''; // Variable real en tu clúster
+$db_name = $_ENV['DB_DATABASE'] ?? ''; // Mapeado correcto de tu Secret/ConfigMap
 $db_user = $_ENV['DB_USER'] ?? '';
-$db_pass = $_ENV['DB_PASSWORD'] ?? ''; // Variable real en tu clúster
+$db_pass = $_ENV['DB_PASSWORD'] ?? ''; // Mapeado correcto de tu Secret/ConfigMap
 
 try {
-    // Conexión limpia usando PDO sin depender de autoloaders externos
     $pdo = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8mb4", $db_user, $db_pass, [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
 
-    // Consulta adaptada estrictamente a tus columnas
     $stmt = $pdo->prepare("
         SELECT id, nombre 
         FROM modelos 
