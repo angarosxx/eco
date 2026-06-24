@@ -23,11 +23,14 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.
 
 WORKDIR /var/www/html
 
-# Copy composer config and build autoloader maps
-COPY composer.json ./
+# 1. Copiar primero TODA la aplicación (incluyendo composer.json y la carpeta src/)
+COPY . /var/www/html
+
+# 2. Instalar dependencias y generar el autoloader optimizado de forma nativa en un solo paso
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-COPY . .
+# 3. Asegurar permisos correctos para Apache sobre los archivos copiados
 RUN chown -R www-data:www-data /var/www/html
+
 EXPOSE 80
 CMD ["apache2-foreground"]
