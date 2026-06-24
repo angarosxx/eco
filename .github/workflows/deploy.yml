@@ -22,6 +22,7 @@ jobs:
         uses: actions/checkout@v4
 
       # --- Compilar Tailwind desde el Runner de GitHub ---
+      # --- Compilar Tailwind desde el Runner de GitHub ---
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
@@ -29,12 +30,11 @@ jobs:
 
       - name: Install Node Dependencies and Build CSS
         run: |
+          cd web
+          # Si el package.json está aquí, esto instalará y compilará de inmediato
           npm install
           npm run build
-          # Asegurar que exista la carpeta destino dentro de web/ antes de copiar
-          mkdir -p web/public/css
-          # Copia el CSS generado en la raíz hacia el contexto de Docker
-          cp -r public/css/* web/public/css/ 2>/dev/null || true
+          # El CSS ya nacerá dentro de web/public/css/ así que no hay que mover nada
 
       # --- Registro e inicio de Docker en GHCR ---
       - name: Log in to GitHub Container Registry (GHCR)
