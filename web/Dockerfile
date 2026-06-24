@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copiar archivos de dependencias de Node
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copiar el resto del código para que Tailwind analice las vistas
 COPY . .
