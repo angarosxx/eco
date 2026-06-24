@@ -41,7 +41,7 @@ $listings = $controller->getHomepageFeed(12);
                         
                         <div class="relative aspect-[4/3] bg-gray-100 overflow-hidden">
                             <img src="<?= $ad['image_path'] ?? 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=500' ?>" 
-                                 alt="<?= htmlspecialchars($ad['title']) ?>" 
+                                 alt="<?= htmlspecialchars($ad['title'] ?? 'Aviso sin título') ?>"
                                  class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                             
                             <div class="absolute top-3 left-3">
@@ -63,8 +63,8 @@ $listings = $controller->getHomepageFeed(12);
                                     <span>📍 <?= htmlspecialchars($ad['comuna_name'] ?? 'Chile') ?></span>
                                 </div>
                                 <h3 class="font-semibold text-gray-800 text-base line-clamp-2 group-hover:text-emerald-600 transition">
-                                    <a href="/ad/<?= $ad['slug'] ?>">
-                                        <?= htmlspecialchars($ad['title']) ?>
+                                    <a href="/ad/<?= $ad['slug'] ?? $ad['id'] ?>">
+                                        <?= htmlspecialchars($ad['title'] ?? 'Aviso sin título') ?>
                                     </a>
                                 </h3>
                             </div>
