@@ -1,6 +1,6 @@
 <?php
 
-namespace Eco;
+namespace Eco\Core;
 
 use PDO;
 use PDOException;
