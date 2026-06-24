@@ -21,6 +21,22 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
+      # --- Compilar Tailwind desde el Runner de GitHub ---
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Node Dependencies and Build CSS
+        run: |
+          npm install
+          npm run build
+          # Asegurar que exista la carpeta destino dentro de web/ antes de copiar
+          mkdir -p web/public/css
+          # Copia el CSS generado en la raíz hacia el contexto de Docker
+          cp -r public/css/* web/public/css/ 2>/dev/null || true
+
+      # --- Registro e inicio de Docker en GHCR ---
       - name: Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@v3
         with:
@@ -40,12 +56,12 @@ jobs:
       - name: Build and Push Shared Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: ./web           # <-- CHANGE 1: Point to your web/ folder context
+          context: ./web
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  deploy-marketplace:              # <-- Renamed for context clarity
+  deploy-marketplace:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
@@ -55,13 +71,10 @@ jobs:
       - name: Setup Kubernetes Context Manually
         run: |
           mkdir -p ~/.kube
-          # CHANGE 2: Ensure your GitHub Secret is named KUBE_CONFIG_DATA
-          # and contains your Base64 encoded k3s.yaml string!
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
       - name: Apply your base configurations globally inside your k8s folder
         run: |
           kubectl apply -f k8s/secrets.yaml
-          # Forcefully wipes and applies your fresh Apache image specifications cleanly
           kubectl replace --force -f k8s/deployments.yaml
