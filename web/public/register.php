@@ -128,7 +128,7 @@
         }
     };
 
-    // 3. Orchestration Engine
+    // 3. Orchestration Engine (Todo agrupado de forma segura dentro del Load)
     document.addEventListener('DOMContentLoaded', () => {
         const regSel = document.getElementById('region-selector');
         const comSel = document.getElementById('comuna-selector');
@@ -154,29 +154,34 @@
                     regSel.innerHTML += `<option value="${r.id}">${label}</option>`;
                 });
             })
-            .catch(err => console.error("Location init failed:", err));
+            .catch(err => {
+                console.error("Location init failed:", err);
+                showAlert("Error al conectar con el servidor para cargar las regiones.");
+            });
 
         // Cascade Dynamic Comunas Dropdown
         regSel?.addEventListener('change', async () => {
-            if (!regSel.value) {
+            const regionId = regSel.value;
+            if (!regionId) {
                 comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
                 return;
             }
             comSel.innerHTML = '<option value="">Cargando comunas...</option>';
             
             try {
-                const data = await LocationAPI.fetchComunas(regSel.value);
+                const data = await LocationAPI.fetchComunas(regionId);
                 const comunas = Array.isArray(data) ? data : (data.data || []);
                 comSel.innerHTML = '<option value="">Selecciona Comuna</option>';
                 comunas.forEach(c => {
                     comSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
                 });
             } catch (err) {
+                console.error(err);
                 comSel.innerHTML = '<option value="">Error cargando comunas</option>';
             }
         });
 
-        // Professional AJAX Form Interception 
+        // AJAX Form Interception 
         regForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
             hideAlert();
@@ -186,7 +191,7 @@
             
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+                submitBtn.innerHTML = 'Procesando...';
             }
 
             try {
@@ -198,7 +203,7 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    window.location.href = result.redirect;
+                    window.location.href = result.redirect || '/dashboard.php';
                 } else {
                     showAlert(result.message || 'Error de registro.');
                 }

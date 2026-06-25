@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ecomercio - Publicar Anuncio</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); height: 100vh; font-family: system-ui, sans-serif; }
-        .login-card { border: none; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 420px; width: 100%; }
-        .form-control { border-radius: 8px; padding: 12px; }
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
 <body class="h-full bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -182,141 +180,146 @@
     </div>
 
     <script>
+    document.addEventListener('DOMContentLoaded', () => {
         // Target Elements
-const categorySelect = document.querySelector('select[name="category_id"]');
-const vehiclePanel = document.getElementById('vehicle-spec-panel');
-const brandSelect = document.getElementById('vehicle_brand');
-const modelSelect = document.getElementById('vehicle_model');
+        const form = document.getElementById('ad-form');
+        const alertBanner = document.getElementById('alert-banner');
+        const alertMessage = document.getElementById('alert-message');
+        
+        const categorySelect = document.querySelector('select[name="category_id"]');
+        const vehiclePanel = document.getElementById('vehicle-spec-panel');
+        const brandSelect = document.getElementById('vehicle_brand');
+        const modelSelect = document.getElementById('vehicle_model');
+        
+        const adTypeSelect = document.getElementById('ad_type');
+        const priceLabel = document.getElementById('price-label');
+        const priceInput = document.getElementById('price-input');
+        const priceTypeWrapper = document.getElementById('price-type-wrapper');
+        const priceTypeSelect = document.getElementById('price_type');
 
-// Listen for Category Selections (Category 1 = Vehículos)
-categorySelect.addEventListener('change', () => {
-    // If user picks Category 1 (Vehículos), open the extra panel
-    if (categorySelect.value === "1") {
-        vehiclePanel.classList.remove('hidden');
-        setVehicleFieldsRequired(true);
-    } else {
-        vehiclePanel.classList.add('hidden');
-        setVehicleFieldsRequired(false);
-    }
-});
+        // Validation helper para campos de vehículo
+        const setVehicleFieldsRequired = (isRequired) => {
+            vehiclePanel.querySelectorAll('input, select').forEach(field => {
+                // Solo exigimos Marca, Modelo y Año si es obligatorio
+                if (field.name === 'vehicle_brand' || field.name === 'vehicle_model' || field.name === 'vehicle_year') {
+                    field.required = isRequired;
+                }
+            });
+        };
 
-// Set validation helper
-const setVehicleFieldsRequired = (isRequired) => {
-    vehiclePanel.querySelectorAll('input, select').forEach(field => {
-        field.required = isRequired;
-    });
-};
-
-// Handle Dynamic Model Fetching when Brand is chosen
-brandSelect.addEventListener('change', async () => {
-    const brandId = brandSelect.value;
-    modelSelect.innerHTML = '<option value="">Cargando modelos...</option>';
-    modelSelect.disabled = true;
-
-    if (!brandId) {
-        modelSelect.innerHTML = '<option value="">Seleccione una marca primero</option>';
-        return;
-    }
-
-    try {
-        // CORRECCIÓN 1: Cambiado 'brand_id' por 'marca_id' para que el backend lo reciba bien
-        const res = await fetch(`/api/vehicles/models.php?marca_id=${brandId}`);
-        const models = await res.json();
-
-        modelSelect.innerHTML = '<option value="">Seleccione Modelo</option>';
-        models.forEach(model => {
-            const opt = document.createElement('option');
-            opt.value = model.id;
-            // CORRECCIÓN 2: Cambiado 'model.name' por 'model.nombre' (coincidiendo con MariaDB)
-            opt.textContent = model.nombre; 
-            modelSelect.appendChild(opt);
+        // Listen for Category Selections (Category 1 = Vehículos)
+        categorySelect?.addEventListener('change', () => {
+            if (categorySelect.value === "1") {
+                vehiclePanel.classList.remove('hidden');
+                setVehicleFieldsRequired(true);
+            } else {
+                vehiclePanel.classList.add('hidden');
+                setVehicleFieldsRequired(false);
+            }
         });
-        modelSelect.disabled = false;
-    } catch (err) {
-        modelSelect.innerHTML = '<option value="">Error al cargar modelos</option>';
-    }
-});
 
-
-
-
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('ad-form');
-            const alertBanner = document.getElementById('alert-banner');
-            const alertMessage = document.getElementById('alert-message');
+        // Handle Dynamic Model Fetching when Brand is chosen
+        brandSelect?.addEventListener('change', async () => {
+            const brandId = brandSelect.value;
             
-            const adTypeSelect = document.getElementById('ad_type');
-            const priceLabel = document.getElementById('price-label');
-            const priceInput = document.getElementById('price-input');
-            const priceTypeWrapper = document.getElementById('price-type-wrapper');
-            const priceTypeSelect = document.getElementById('price_type');
+            if (!brandId) {
+                modelSelect.innerHTML = '<option value="">Seleccione una marca primero</option>';
+                modelSelect.disabled = true;
+                return;
+            }
 
-            // Handle the UI state changes based on Ad Type selection
-            adTypeSelect.addEventListener('change', () => {
-                const type = adTypeSelect.value;
+            modelSelect.innerHTML = '<option value="">Cargando modelos...</option>';
+            modelSelect.disabled = true;
+
+            try {
+                const res = await fetch(`/api/vehicles/models.php?marca_id=${brandId}`);
+                if (!res.ok) throw new Error('Network response error fetching models');
                 
-                // Reset defaults
-                priceTypeWrapper.classList.add('hidden');
+                const models = await res.json();
+                
+                modelSelect.innerHTML = '<option value="">Seleccione Modelo</option>';
+                models.forEach(model => {
+                    const opt = document.createElement('option');
+                    opt.value = model.id;
+                    opt.textContent = model.nombre; 
+                    modelSelect.appendChild(opt);
+                });
+                modelSelect.disabled = false;
+            } catch (err) {
+                console.error(err);
+                modelSelect.innerHTML = '<option value="">Error al cargar modelos</option>';
+            }
+        });
+
+        // Handle the UI state changes based on Ad Type selection
+        adTypeSelect?.addEventListener('change', () => {
+            const type = adTypeSelect.value;
+            
+            // Reset defaults
+            priceTypeWrapper.classList.add('hidden');
+            priceInput.disabled = false;
+            priceInput.required = true;
+            priceLabel.textContent = "Precio (CLP)";
+
+            if (type === 'vendo') {
+                priceTypeWrapper.classList.remove('hidden');
+                handlePriceTypeCondition();
+            } else if (type === 'compro') {
+                priceLabel.textContent = "Precio Máximo Presupuesto (CLP)";
+            } else if (type === 'arriendo') {
+                priceLabel.textContent = "Precio Arriendo Mensual (CLP)";
+            }
+        });
+
+        // Toggle input behavior if user selects "Contact for price"
+        const handlePriceTypeCondition = () => {
+            if (priceTypeSelect.value === 'contact') {
+                priceInput.value = '';
+                priceInput.disabled = true;
+                priceInput.required = false;
+            } else {
                 priceInput.disabled = false;
                 priceInput.required = true;
-                priceLabel.textContent = "Precio (CLP)";
+            }
+        };
+        priceTypeSelect?.addEventListener('change', handlePriceTypeCondition);
 
-                if (type === 'vendo') {
-                    priceTypeWrapper.classList.remove('hidden');
-                    handlePriceTypeCondition();
-                } else if (type === 'compro') {
-                    priceLabel.textContent = "Precio Máximo Presupuesto (CLP)";
-                } else if (type === 'arriendo') {
-                    priceLabel.textContent = "Precio Arriendo Mensual (CLP)";
+        // Form Submit Interception
+        form?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alertBanner.classList.add('hidden');
+            
+            // Habilitar temporalmente para que FormData capture el valor del input si estaba desactivado
+            priceInput.disabled = false; 
+            const formData = new FormData(form);
+            
+            // Volver a dejarlo en su estado original tras capturar los datos
+            handlePriceTypeCondition();
+
+            try {
+                const response = await fetch('/api/ads/create.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(errText || 'Error en el servidor backend.');
                 }
-            });
 
-            // Toggle input behavior if user selects "Contact for price"
-            const handlePriceTypeCondition = () => {
-                if (priceTypeSelect.value === 'contact') {
-                    priceInput.value = '';
-                    priceInput.disabled = true;
-                    priceInput.required = false;
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = '/dashboard.php';
                 } else {
-                    priceInput.disabled = false;
-                    priceInput.required = true;
-                }
-            };
-            priceTypeSelect.addEventListener('change', handlePriceTypeCondition);
-
-            form?.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                alertBanner.classList.add('hidden');
-                
-                // Enable temporarily so FormData collects the field value even if disabled
-                priceInput.disabled = false; 
-                const formData = new FormData(form);
-
-                try {
-                    const response = await fetch('/api/ads/create.php', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (!response.ok) {
-                        const errText = await response.text();
-                        throw new Error(errText || 'Error en el servidor backend.');
-                    }
-
-                    const result = await response.json();
-                    if (result.success) {
-                        window.location.href = '/dashboard.php';
-                    } else {
-                        alertMessage.textContent = result.message || 'Error al guardar el anuncio.';
-                        alertBanner.classList.remove('hidden');
-                    }
-                } catch (err) {
-                    alertMessage.innerHTML = `<strong>Error de procesamiento:</strong><br><pre class="text-xs mt-1 overflow-x-auto">${err.message}</pre>`;
+                    alertMessage.textContent = result.message || 'Error al guardar el anuncio.';
                     alertBanner.classList.remove('hidden');
                 }
-            });
+            } catch (err) {
+                alertMessage.innerHTML = `<strong>Error de procesamiento:</strong><br><pre class="text-xs mt-1 overflow-x-auto">${err.message}</pre>`;
+                alertBanner.classList.remove('hidden');
+            }
         });
-    </script>
+    });
+</script>
 </body>
 </html>
