@@ -43,40 +43,62 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('login-form');
-            const alertBanner = document.getElementById('alert-banner');
-            const alertMessage = document.getElementById('alert-message');
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginForm = document.getElementById('login-form'); // Asegúrate de que tu formulario tenga id="login-form"
+        const alertBanner = document.getElementById('alert-banner');
+        const alertMessage = document.getElementById('alert-message');
 
-            form?.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                alertBanner.classList.add('hidden');
+        const showAlert = (msg) => {
+            if (alertMessage && alertBanner) {
+                alertMessage.textContent = msg;
+                alertBanner.classList.remove('hidden');
+            } else {
+                alert(msg);
+            }
+        };
 
-                const submitBtn = form.querySelector('button[type="submit"]');
-                if (submitBtn) submitBtn.disabled = true;
+        loginForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (alertBanner) alertBanner.classList.add('hidden');
 
-                try {
-                    const response = await fetch('/api/auth/login_process.php', {
-                        method: 'POST',
-                        body: new FormData(form)
-                    });
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Verificando...';
+            }
 
-                    const result = await response.json();
+            try {
+                // 🎯 REVISIÓN: Asegúrate de que la ruta del fetch coincida con tu endpoint real de login
+                const response = await fetch('/api/auth/process_login.php', {
+                    method: 'POST',
+                    body: new FormData(loginForm)
+                });
 
-                    if (result.success) {
-                        window.location.href = result.redirect;
-                    } else {
-                        alertMessage.textContent = result.message || 'Error de autenticación.';
-                        alertBanner.classList.remove('hidden');
-                    }
-                } catch (err) {
-                    alertMessage.textContent = 'Error de red al conectar con el servidor.';
-                    alertBanner.classList.remove('hidden');
-                } finally {
-                    if (submitBtn) submitBtn.disabled = false;
+                if (!response.ok) {
+                    throw new Error('Error en la comunicación con el servidor.');
                 }
-            });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Redirección al área privada
+                    window.location.href = result.redirect || '/dashboard.php';
+                } else {
+                    showAlert(result.message || 'Credenciales incorrectas.');
+                }
+            } catch (err) {
+                console.error(err);
+                showAlert('Error crítico al conectar con el servidor de autenticación.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+            }
         });
-    </script>
+    });
+</script>
 </body>
 </html>
