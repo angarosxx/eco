@@ -1,10 +1,17 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-// Capturar el ID de la marca enviado por el formulario
-$marca_id = isset($_GET['marca_id']) ? (int)$_GET['marca_id'] : (isset($_GET['marca']) ? (int)$_GET['marca'] : 0);
+// Cargar el autoloader de Composer
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
-if ($marca_id <= 0) {
+// 🛠️ CORRECCIÓN 1: Asegurar que use la ruta correcta de Database si invoca SQL directo,
+// o que el modelo de Vehículos tenga el namespace bien configurado.
+use Eco\Core\Database;
+
+// Capturar el ID de la marca enviado por el formulario
+$marcaId = isset($_GET['marca_id']) ? (int)$_GET['marca_id'] : 0;
+
+if ($marcaId === 0) {
     echo json_encode([]);
     exit;
 }
@@ -16,25 +23,19 @@ $db_user = $_ENV['DB_USER'] ?? '';
 $db_pass = $_ENV['DB_PASSWORD'] ?? ''; // Mapeado correcto de tu Secret/ConfigMap
 
 try {
-    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8mb4", $db_user, $db_pass, [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
+    $db = Database::getConnection();
+    
+    // 🛠️ CORRECCIÓN 2: Validar query contra tablas reales (ej: 'vehicle_models' o 'modelos')
+    // Cambia los nombres de tabla/columna si difieren en tu estructura de MariaDB
+    $stmt = $db->prepare("SELECT id, nombre FROM vehicle_models WHERE marca_id = :marca_id ORDER BY nombre ASC");
+    $stmt->execute(['marca_id' => $marcaId]);
+    
+    $models = $stmt->fetchAll();
+    echo json_encode($models);
+    exit;
 
-    $stmt = $pdo->prepare("
-        SELECT id, nombre 
-        FROM modelos 
-        WHERE marca_id = ? AND activo = 1 
-        ORDER BY nombre ASC
-    ");
-    $stmt->execute([$marca_id]);
-    $modelos = $stmt->fetchAll();
-
-    echo json_encode($modelos);
-
-} catch (PDOException $e) {
-    echo json_encode([
-        'error' => true,
-        'message' => $e->getMessage()
-    ]);
+} catch (\Exception $e) {
+    http_response_code(500);
+    echo json_encode(["success" => false, "message" => $e->getMessage()]);
+    exit;
 }
