@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx tailwindcss -i ./src/input.css -o ./public/css/app.css --minify"
+    "build": "tailwindcss -i ./src/input.css -o ./public/css/app.css --minify"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
     "autoprefixer": "^10.5.2",
     "postcss": "^8.5.15",
     "tailwindcss": "^4.3.1"
