@@ -1,0 +1,155 @@
+/* ==========================================================================
+   ECOMERCIO.CL - SISTEMA DE ESTILOS GLOBAL (VANILLA CSS)
+   ========================================================================== */
+
+/* 1. Variables de Diseño (Inspirado en Marketplaces Modernos) */
+:root {
+    --primary-color: #0f172a;       /* Azul oscuro pizarra (B2B / Confianza) */
+    --accent-color: #2563eb;        /* Azul eléctrico para botones y enlaces */
+    --accent-hover: #1d4ed8;
+    --bg-main: #f8fafc;             /* Fondo gris ultra-limpio */
+    --bg-card: #ffffff;
+    --text-main: #334155;           /* Gris oscuro para lectura óptima */
+    --text-muted: #64748b;          /* Gris secundario para detalles */
+    --border-color: #e2e8f0;        /* Bordes sutiles */
+    --success-color: #10b981;       /* Verde para precios y éxitos */
+}
+
+/* 2. Reseteo y Base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-main);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+/* 3. Estilos de tu Dashboard PHP (Mantenidos y Optimizados) */
+.nav-sidebar {
+    background-color: var(--primary-color);
+    min-height: 100vh;
+    color: var(--text-muted);
+}
+
+.nav-link-custom {
+    color: var(--text-muted);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-bottom: 4px;
+    transition: all 0.2s ease;
+}
+
+.nav-link-custom:hover, 
+.nav-link-custom.active {
+    background-color: #1e293b;
+    color: #ffffff;
+}
+
+.stat-badge {
+    border-radius: 10px;
+    border: none;
+}
+
+/* 4. Arquitectura de Componentes de Segunda Mano / Marketplace */
+
+/* Contenedor de la Grilla de Productos */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Tarjeta de Producto (Estilo Segunda-Mano) */
+.menu-card, .product-card {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card);
+    overflow: hidden;
+    height: 100%;
+}
+
+.menu-card:hover, .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    border-color: #cbd5e1;
+}
+
+/* Imagen del Producto */
+.product-card-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background-color: #f1f5f9;
+}
+
+/* Cuerpo de la tarjeta */
+.product-card-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.product-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    text-decoration: none;
+}
+
+/* Estilo del precio destacado de Segunda-Mano */
+.product-card-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--success-color);
+    margin-bottom: 12px;
+}
+
+.product-card-location {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Botones de Acción Globales */
+.btn-custom {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.btn-primary-custom {
+    background-color: var(--accent-color);
+    color: #ffffff;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--accent-hover);
+}

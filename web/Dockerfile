@@ -14,7 +14,6 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 
 RUN a2enmod rewrite
 
-# Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
@@ -24,10 +23,8 @@ RUN sed -i '/<Directory ${APACHE_DOCUMENT_ROOT}>/,/<\/Directory>/s/AllowOverride
 
 WORKDIR /var/www/html
 
-# Copiar el código
 COPY . /var/www/html
 
-# Crear el ruteo nativo
 RUN echo "FallbackResource /index.php" > /var/www/html/public/.htaccess
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction

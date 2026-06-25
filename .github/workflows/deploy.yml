@@ -7,7 +7,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
 
@@ -21,22 +20,7 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # --- Compilar Tailwind desde el Runner de GitHub ---
-      # --- Compilar Tailwind desde el Runner de GitHub ---
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Node Dependencies and Build CSS
-        run: |
-          cd web
-          # Si el package.json está aquí, esto instalará y compilará de inmediato
-          npm install
-          npm run build
-          # El CSS ya nacerá dentro de web/public/css/ así que no hay que mover nada
-
-      # --- Registro e inicio de Docker en GHCR ---
+      # --- Eliminamos Node por completo. Vamos directo a Docker ---
       - name: Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@v3
         with:
