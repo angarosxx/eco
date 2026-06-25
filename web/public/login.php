@@ -57,48 +57,47 @@
             }
         };
 
-        loginForm?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (alertBanner) alertBanner.classList.add('hidden');
+        form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    alertBanner.classList.add('hidden');
 
-            const submitBtn = loginForm.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
-            
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = 'Verificando...';
-            }
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Verificando...';
+    }
 
-            try {
-                // 🎯 REVISIÓN: Asegúrate de que la ruta del fetch coincida con tu endpoint real de login
-                const response = await fetch('/api/auth/process_login.php', {
-                    method: 'POST',
-                    body: new FormData(loginForm)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error en la comunicación con el servidor.');
-                }
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Redirección al área privada
-                    window.location.href = result.redirect || '/dashboard.php';
-                } else {
-                    showAlert(result.message || 'Credenciales incorrectas.');
-                }
-            } catch (err) {
-                console.error(err);
-                showAlert('Error crítico al conectar con el servidor de autenticación.');
-            } finally {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                }
-            }
+    try {
+        const response = await fetch('/api/auth/login_process.php', {
+            method: 'POST',
+            body: new FormData(form)
         });
-    });
+
+        // 🎯 CAPTURADOR AVANZADO: Si el backend falla (Error 500/404/etc), leemos el error real
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(errText || 'Error interno en el servidor de autenticación.');
+        }
+
+        const result = await response.json();
+        if (result.success) {
+            window.location.href = result.redirect || '/dashboard.php';
+        } else {
+            alertMessage.textContent = result.message || 'Credenciales incorrectas.';
+            alertBanner.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error(err);
+        // Pinta el error formateado directamente en tu banner
+        alertMessage.innerHTML = `<strong>Error en el inicio de sesión:</strong><br><pre class="text-xs mt-1 overflow-x-auto">${err.message}</pre>`;
+        alertBanner.classList.remove('hidden');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Iniciar Sesión';
+        }
+    }
+});
 </script>
 </body>
 </html>
