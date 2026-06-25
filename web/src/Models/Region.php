@@ -2,7 +2,7 @@
 
 namespace Eco\Models;
 
-use Eco\Database;
+use Eco\Core\Database;
 use PDO;
 
 class Region {
