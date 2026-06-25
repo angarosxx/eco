@@ -1,14 +1,15 @@
 <?php
+// web/public/api/vehicles/models.php
 header('Content-Type: application/json; charset=utf-8');
 
-// Cargar el autoloader de Composer
-require_once __DIR__ . '/../../../vendor/autoload.php';
+// 1. Cargar el autoloader de Composer de forma segura
+if (file_exists(__DIR__ . '/../../../vendor/autoload.php')) {
+    require_once __DIR__ . '/../../../vendor/autoload.php';
+}
 
-// 🛠️ CORRECCIÓN 1: Asegurar que use la ruta correcta de Database si invoca SQL directo,
-// o que el modelo de Vehículos tenga el namespace bien configurado.
 use Eco\Core\Database;
 
-// Capturar el ID de la marca enviado por el formulario
+// 2. Capturar el ID de la marca enviado por el formulario
 $marcaId = isset($_GET['marca_id']) ? (int)$_GET['marca_id'] : 0;
 
 if ($marcaId === 0) {
@@ -16,26 +17,27 @@ if ($marcaId === 0) {
     exit;
 }
 
-// Variables de entorno nativas inyectadas por tu clúster
-$db_host = $_ENV['DB_HOST'] ?? 'localhost';
-$db_name = $_ENV['DB_DATABASE'] ?? ''; // Mapeado correcto de tu Secret/ConfigMap
-$db_user = $_ENV['DB_USER'] ?? '';
-$db_pass = $_ENV['DB_PASSWORD'] ?? ''; // Mapeado correcto de tu Secret/ConfigMap
-
 try {
+    // 3. Obtener la conexión (Database ya maneja los getenv() internamente)
     $db = Database::getConnection();
     
-    // 🛠️ CORRECCIÓN 2: Validar query contra tablas reales (ej: 'vehicle_models' o 'modelos')
-    // Cambia los nombres de tabla/columna si difieren en tu estructura de MariaDB
+    // 4. Validar query contra tablas reales de MariaDB
+    // 💡 NOTA: Asegúrate de que en tu base de datos la tabla se llame 'vehicle_models' 
+    // y que las columnas sean exactamente 'id', 'nombre' y 'marca_id'.
     $stmt = $db->prepare("SELECT id, nombre FROM vehicle_models WHERE marca_id = :marca_id ORDER BY nombre ASC");
     $stmt->execute(['marca_id' => $marcaId]);
     
     $models = $stmt->fetchAll();
+    
+    // 5. Devolver la respuesta limpia
     echo json_encode($models);
     exit;
 
 } catch (\Exception $e) {
     http_response_code(500);
-    echo json_encode(["success" => false, "message" => $e->getMessage()]);
+    echo json_encode([
+        "success" => false, 
+        "message" => "Error al cargar modelos: " . $e->getMessage()
+    ]);
     exit;
 }
