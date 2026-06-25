@@ -9,7 +9,7 @@ $listings = $controller->getHomepageFeed(12);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eco Marketplace — B2C2B Chile</title>
-    <link href="/css/app.css" rel="stylesheet">
+    <link href="../css/app.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50 font-sans text-gray-900 antialiased">
 

@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ecomercio - Publicar Anuncio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); height: 100vh; font-family: system-ui, sans-serif; }
+        .login-card { border: none; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 420px; width: 100%; }
+        .form-control { border-radius: 8px; padding: 12px; }
+    </style>
 </head>
 <body class="h-full bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md border border-gray-100">
