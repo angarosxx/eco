@@ -291,40 +291,33 @@ if (session_status() === PHP_SESSION_NONE) {
 
         // Form Submit Interception
         form?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            alertBanner.classList.add('hidden');
-            
-            // Habilitar temporalmente para que FormData capture el valor del input si estaba desactivado
-            priceInput.disabled = false; 
-            const formData = new FormData(form);
-            
-            // Volver a dejarlo en su estado original tras capturar los datos
-            handlePriceTypeCondition();
+    e.preventDefault();
+    alertBanner.classList.add('hidden');
 
-            try {
-                const response = await fetch('/api/ads/create.php', {
-                    method: 'POST',
-                    credentials: 'include',
-                    body: formData
-                });
+    priceInput.disabled = false;
+    const formData = new FormData(form);
+    handlePriceTypeCondition();
 
-                if (!response.ok) {
-                    const errText = await response.text();
-                    throw new Error(errText || 'Error en el servidor backend.');
-                }
-
-                const result = await response.json();
-                if (result.success) {
-                    window.location.href = '/dashboard.php';
-                } else {
-                    alertMessage.textContent = result.message || 'Error al guardar el anuncio.';
-                    alertBanner.classList.remove('hidden');
-                }
-            } catch (err) {
-                alertMessage.innerHTML = `<strong>Error de procesamiento:</strong><br><pre class="text-xs mt-1 overflow-x-auto">${err.message}</pre>`;
-                alertBanner.classList.remove('hidden');
-            }
+    try {
+        const response = await fetch('/api/ads/create.php', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
         });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Error al guardar el anuncio.');
+        }
+
+        window.location.href = '/dashboard.php';
+    } catch (err) {
+        alertMessage.textContent = err.message || 'Error de procesamiento.';
+        alertBanner.classList.remove('hidden');
+    }
+});
+
     });
 </script>
 </body>
