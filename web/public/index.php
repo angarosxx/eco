@@ -55,4 +55,13 @@ switch ($requestUri) {
             "message" => "Ruta no encontrada: " . htmlspecialchars($requestUri)
         ]);
         break;
+    case '/publish_ad':
+    case '/publish_ad.php':
+        require_once __DIR__ . '/publish_ad.php';
+        break;
+
+    case '/register':
+    case '/register.php':
+        require_once __DIR__ . '/register.php';
+        break;
 }
