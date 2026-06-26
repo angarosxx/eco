@@ -1,6 +1,5 @@
 <?php
 
-<?php
 // 🔒 CONFIGURACIÓN DE SESIONES GLOBAL SEGURA PARA EL CLÚSTER
 session_set_cookie_params([
     'lifetime' => 14400,
