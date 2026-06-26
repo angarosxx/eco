@@ -3,7 +3,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 ?>
-// Tu código normal...
 <!DOCTYPE html>
 <html lang="es" class="h-full bg-gray-50">
 <head>

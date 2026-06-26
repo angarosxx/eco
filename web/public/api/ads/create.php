@@ -4,14 +4,14 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 header('Content-Type: application/json; charset=utf-8');
-error_reporting(E_ERROR | E_PARSE);
-ini_set('display_errors', '0');
+error_reporting(E_ALL); // 🔥 Activamos reportes totales para desarrollo
+ini_set('display_errors', '0'); // Mantenemos en 0 para no corromper el JSON
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use Eco\Models\Listing;
 
-// Protect the endpoint: Ensure only logged-in users can reach this execution block
+// Proteger el endpoint
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Sesión no autorizada.']);
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 try {
     $imageUrl = null;
 
-    // Handle File Uploads professionally if an image was selected
+    // Manejo profesional de subida de archivos
     if (isset($_FILES['ad_image']) && $_FILES['ad_image']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['ad_image']['tmp_name'];
         $fileName = $_FILES['ad_image']['name'];
@@ -36,8 +36,9 @@ try {
         $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
         
         if (in_array($fileExtension, $allowedExtensions)) {
-            // Define your clean app storage directory block inside the persistent volume container
-            $uploadFileDir = __DIR__ . '/../../public/uploads/';
+            // 🔥 CORRECCIÓN: Ruta física real dentro de la carpeta public de Apache
+            $uploadFileDir = __DIR__ . '/../../uploads/'; 
+            
             if (!is_dir($uploadFileDir)) {
                 mkdir($uploadFileDir, 0755, true);
             }
@@ -51,11 +52,11 @@ try {
         }
     }
 
-    // Pack data array to route to the Model layer
+    // Empaquetar datos para la capa del Modelo
     $adData = [
-        'user_id'     => $_SESSION['user_id'],
+        'user_id'     => (int)$_SESSION['user_id'],
         'title'       => $_POST['title'] ?? '',
-        'description'=> $_POST['description'] ?? '',
+        'description' => $_POST['description'] ?? '',
         'price'       => $_POST['price'] ?? 0,
         'region_id'   => $_POST['region_id'] ?? 0,
         'comuna_id'   => $_POST['comuna_id'] ?? 0,
@@ -72,6 +73,10 @@ try {
 
 } catch (\Exception $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Fallo interno al procesar el anuncio.']);
+    // 🔥 MEJORA: Te devuelve el error real para no ir a ciegas si falla la BD
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Fallo interno al procesar el anuncio: ' . $e->getMessage()
+    ]);
     exit;
 }
