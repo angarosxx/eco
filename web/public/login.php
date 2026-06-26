@@ -44,7 +44,6 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        //const loginForm = document.getElementById('login-form'); // Asegúrate de que tu formulario tenga id="login-form"
         const form = document.getElementById('loginForm') || document.querySelector('form');
         const alertBanner = document.getElementById('alert-banner');
         const alertMessage = document.getElementById('alert-message');
@@ -59,46 +58,45 @@
         };
 
         form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    alertBanner.classList.add('hidden');
+            e.preventDefault();
+            alertBanner.classList.add('hidden');
 
-    const submitBtn = form.querySelector('button[type="submit"]');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerText = 'Verificando...';
-    }
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Verificando...';
+            }
 
-    try {
-        const response = await fetch('/api/auth/login_process.php', {
-            method: 'POST',
-            body: new FormData(form)
+            try {
+                const response = await fetch('/api/auth/login_process.php', {
+                    method: 'POST',
+                    body: new FormData(form)
+                });
+
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(errText || 'Error interno en el servidor de autenticación.');
+                }
+
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = result.redirect || '/dashboard.php';
+                } else {
+                    alertMessage.textContent = result.message || 'Credenciales incorrectas.';
+                    alertBanner.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                alertMessage.innerHTML = `<strong>Error en el inicio de sesión:</strong><br><pre class="text-xs mt-1 overflow-x-auto">${err.message}</pre>`;
+                alertBanner.classList.remove('hidden');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Iniciar Sesión';
+                }
+            }
         });
-
-        // 🎯 CAPTURADOR AVANZADO: Si el backend falla (Error 500/404/etc), leemos el error real
-        if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(errText || 'Error interno en el servidor de autenticación.');
-        }
-
-        const result = await response.json();
-        if (result.success) {
-            window.location.href = result.redirect || '/dashboard.php';
-        } else {
-            alertMessage.textContent = result.message || 'Credenciales incorrectas.';
-            alertBanner.classList.remove('hidden');
-        }
-    } catch (err) {
-        console.error(err);
-        // Pinta el error formateado directamente en tu banner
-        alertMessage.innerHTML = `<strong>Error en el inicio de sesión:</strong><br><pre class="text-xs mt-1 overflow-x-auto">${err.message}</pre>`;
-        alertBanner.classList.remove('hidden');
-    } finally {
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerText = 'Iniciar Sesión';
-        }
-    }
-});
+    }); // 👈 ESTA LLAVE Y PARÉNTESIS FALTABAN PARA CERRAR EL DOMContentLoaded
 </script>
 </body>
 </html>
