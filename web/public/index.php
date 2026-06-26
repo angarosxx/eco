@@ -1,5 +1,20 @@
 <?php
 
+<?php
+// 🔒 CONFIGURACIÓN DE SESIONES GLOBAL SEGURA PARA EL CLÚSTER
+session_set_cookie_params([
+    'lifetime' => 14400,
+    'path' => '/',
+    'domain' => 'ecomercio.cl',
+    'secure' => true,      // Fuerza transmisión solo sobre HTTPS (Ingress TLS)
+    'httponly' => true,    // Protege contra robo de sesión vía XSS
+    'samesite' => 'Lax'
+]);
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -10,6 +25,7 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
 
 // 🔥 FIX: If the request is for a real file in the API folder, execution passes straight through
 if (strpos($requestUri, '/api/') === 0) {
