@@ -50,3 +50,13 @@ try {
     echo json_encode(['success' => false, 'message' => 'Fallo crítico: ' . $e->getMessage()]);
     exit;
 }
+if ($result['success']) {
+    $_SESSION['user_id'] = $result['user_id'];
+    $_SESSION['account_type'] = $result['account_type'];
+    
+    session_write_close(); 
+    
+    // En lugar de cualquier otra función, usa estrictamente esta línea:
+    echo json_encode(['success' => true, 'redirect' => '/dashboard.php']);
+    exit;
+}
