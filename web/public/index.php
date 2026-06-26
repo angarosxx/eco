@@ -25,7 +25,6 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-
 // 🔥 FIX: If the request is for a real file in the API folder, execution passes straight through
 if (strpos($requestUri, '/api/') === 0) {
     $apiFile = __DIR__ . $requestUri;
@@ -47,20 +46,17 @@ switch ($requestUri) {
         require_once __DIR__ . '/register.php';
         break;
 
+    case '/publish_ad':
+    case '/publish_ad.php':
+        require_once __DIR__ . '/publish_ad.php';
+        break;
+
+    // 🎯 EL DEFAULT SIEMPRE VA AL FINAL
     default:
         http_response_code(404);
         echo json_encode([
             "success" => false, 
             "message" => "Ruta no encontrada: " . htmlspecialchars($requestUri)
         ]);
-        break;
-    case '/publish_ad':
-    case '/publish_ad.php':
-        require_once __DIR__ . '/publish_ad.php';
-        break;
-
-    case '/register':
-    case '/register.php':
-        require_once __DIR__ . '/register.php';
         break;
 }
