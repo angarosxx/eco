@@ -1,4 +1,10 @@
 <?php
+$customSessionPath = __DIR__ . '/../../../sessions';
+if (!is_dir($customSessionPath)) {
+    mkdir($customSessionPath, 0700, true);
+}
+session_save_path($customSessionPath);
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

@@ -1,5 +1,15 @@
 <?php
 
+<?php
+// Crear una carpeta de sesiones local al proyecto si no existe
+$customSessionPath = __DIR__ . '/../sessions';
+if (!is_dir($customSessionPath)) {
+    mkdir($customSessionPath, 0700, true);
+    chown($customSessionPath, 'www-data');
+}
+session_save_path($customSessionPath);
+
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
