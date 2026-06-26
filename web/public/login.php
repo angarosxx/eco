@@ -22,7 +22,7 @@
             <span id="alert-message"></span>
         </div>
 
-        <form id="login-form" class="mt-4 space-y-6">
+        <form id="loginForm" method="POST" action="" class="mt-4 space-y-6"> 
             <div class="space-y-4">
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
@@ -44,7 +44,8 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const loginForm = document.getElementById('login-form'); // Asegúrate de que tu formulario tenga id="login-form"
+        //const loginForm = document.getElementById('login-form'); // Asegúrate de que tu formulario tenga id="login-form"
+        const form = document.getElementById('loginForm') || document.querySelector('form');
         const alertBanner = document.getElementById('alert-banner');
         const alertMessage = document.getElementById('alert-message');
 

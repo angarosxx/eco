@@ -18,8 +18,8 @@ if ($marcaId === 0) {
 try {
     $db = Database::getConnection();
     
-    // 🔥 CORRECCIÓN: Apuntar a la tabla 'modelos' que nos mostraste en el dump
-    $stmt = $db->prepare("SELECT id, nombre FROM modelos WHERE marca_id = :marca_id AND activo = 1 ORDER BY nombre ASC");
+    // Cambia tu consulta actual por esta:
+$stmt = $db->prepare("SELECT MIN(id) as id, nombre FROM modelos WHERE marca_id = :marca_id AND activo = 1 GROUP BY nombre ORDER BY nombre ASC");
     $stmt->execute(['marca_id' => $marcaId]);
     
     $models = $stmt->fetchAll();
