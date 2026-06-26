@@ -8,14 +8,14 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 🚀 LA PIEZA FALTANTE: Cargar el Autoloader de Composer para habilitar los Namespaces
+// 🚀 Cargar el Autoloader de Composer para habilitar los Namespaces
 if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once __DIR__ . '/../vendor/autoload.php';
 }
 
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// 🔥 FIX: If the request is for a real file in the API folder, execution passes straight through
+// 🔥 Si es una petición a la API, se ejecuta directo el archivo físico
 if (strpos($requestUri, '/api/') === 0) {
     $apiFile = __DIR__ . $requestUri;
     if (file_exists($apiFile)) {
@@ -24,11 +24,23 @@ if (strpos($requestUri, '/api/') === 0) {
     }
 }
 
-// Global Layout Router for standard pages
+// Enrutador global para páginas estándar
 switch ($requestUri) {
     case '/':
     case '/index.php':
         require_once __DIR__ . '/../src/Views/home.php';
+        break;
+
+    // 🎯 AÑADIDO: Ruta para el Login
+    case '/login':
+    case '/login.php':
+        require_once __DIR__ . '/login.php';
+        break;
+
+    // 🎯 AÑADIDO: Ruta para el Dashboard
+    case '/dashboard':
+    case '/dashboard.php':
+        require_once __DIR__ . '/dashboard.php';
         break;
 
     case '/register':
