@@ -304,7 +304,7 @@ if (session_status() === PHP_SESSION_NONE) {
             try {
                 const response = await fetch('/api/ads/create.php', {
                     method: 'POST',
-                    credentials: 'include'
+                    credentials: 'include',
                     body: formData
                 });
 
