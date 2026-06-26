@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+// Tu código normal...
 // Set explicit session cookie configuration before starting the session
 ini_set('session.cookie_path', '/');
 ini_set('session.cookie_httponly', 1);

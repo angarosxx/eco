@@ -1,15 +1,5 @@
 <?php
 
-// 🔒 CONFIGURACIÓN DE SESIONES GLOBAL SEGURA PARA EL CLÚSTER
-session_set_cookie_params([
-    'lifetime' => 14400,
-    'path' => '/',
-    'domain' => 'ecomercio.cl',
-    'secure' => true,      // Fuerza transmisión solo sobre HTTPS (Ingress TLS)
-    'httponly' => true,    // Protege contra robo de sesión vía XSS
-    'samesite' => 'Lax'
-]);
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

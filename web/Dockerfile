@@ -25,8 +25,6 @@ WORKDIR /var/www/html
 
 COPY . /var/www/html
 
-RUN echo "FallbackResource /index.php" > /var/www/html/public/.htaccess
-
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN chown -R www-data:www-data /var/www/html
 
