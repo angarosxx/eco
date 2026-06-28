@@ -25,18 +25,21 @@ if (strpos($requestUri, '/api/') === 0) {
 
 // Enrutador global para páginas estándar
 switch ($requestUri) {
+    // 🏠 HOME: Ahora acepta la raíz, index y home explícito
     case '/':
     case '/index.php':
+    case '/home':
+    case '/home.php': // 💡 ¡Añadido! Así evitamos que falle si entras directo a /home.php
         require_once __DIR__ . '/../src/Views/home.php';
         break;
 
-    // 🎯 AÑADIDO: Ruta para el Login
+    // 🎯 Ruta para el Login
     case '/login':
     case '/login.php':
         require_once __DIR__ . '/login.php';
         break;
 
-    // 🎯 AÑADIDO: Ruta para el Dashboard
+    // 🎯 Ruta para el Dashboard
     case '/dashboard':
     case '/dashboard.php':
         require_once __DIR__ . '/dashboard.php';
@@ -52,9 +55,9 @@ switch ($requestUri) {
         require_once __DIR__ . '/publish_ad.php';
         break;
 
-    case '/ad_details.php':
     case '/ad_details':
-        require __DIR__ . '/ad_details.php';
+    case '/ad_details.php': // 💡 Invertido el orden para mantener consistencia visual
+        require_once __DIR__ . '/ad_details.php';
         break;
 
     // 🎯 EL DEFAULT SIEMPRE VA AL FINAL
