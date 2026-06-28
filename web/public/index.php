@@ -52,6 +52,11 @@ switch ($requestUri) {
         require_once __DIR__ . '/publish_ad.php';
         break;
 
+    case '/ad_details.php':
+    case '/ad_details':
+        require __DIR__ . '/ad_details.php';
+        break;
+
     // 🎯 EL DEFAULT SIEMPRE VA AL FINAL
     default:
         http_response_code(404);
