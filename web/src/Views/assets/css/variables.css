@@ -1,0 +1,15 @@
+:root {
+    --primary: #2563eb;       /* Azul Eléctrico */
+    --secondary: #1d4ed8;     /* Azul Oscuro */
+    --success: #16a34a;       /* Verde */
+    --danger: #dc2626;        /* Rojo */
+    --warning: #f59e0b;       /* Ámbar */
+    --background: #f8fafc;    /* Fondo claro suave (Slate 50) */
+    --surface: #ffffff;       /* Blanco Puro para tarjetas/paneles */
+    --text-main: #0f172a;     /* Texto principal casi negro (Slate 900) */
+    --text-muted: #64748b;    /* Texto secundario (Slate 500) */
+    --border: #e2e8f0;        /* Bordes sutiles claros */
+    --radius: 12px;
+    --radius-sm: 6px;
+    --fuente: 'Inter', system-ui, sans-serif;
+}
