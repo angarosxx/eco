@@ -3,8 +3,8 @@
 $page_title = "Gymfit Core Pulse Trainers - Ecomercio";
 
 // 2. Carga de los componentes estructurales superiores
-require "../src/Views/layout/header.php";
-require "../src/Views/layout/navbar.php";
+require "/../src/Views/layout/header.php";
+require "/../src/Views/layout/navbar.php";
 
 // 3. MOCK DATA: Tus datos simulados (Esto luego vendrá de tu Base de Datos)
 $ad = [
@@ -141,5 +141,5 @@ $vendedor = [
 
 <?php
 // 5. Carga de los componentes estructurales inferiores
-require "../src/Views/layout/footer.php";
+require "/../src/Views/layout/footer.php";
 ?>
