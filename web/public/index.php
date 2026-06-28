@@ -60,6 +60,14 @@ switch ($requestUri) {
         require_once __DIR__ . '/ad_details.php';
         break;
 
+    // 🎯 Añadir dentro de tu switch en index.php
+    case '/listings':
+    case '/listings.php':
+    case '/advanced_search':
+    case '/advanced_search.php':
+        require_once __DIR__ . '/advanced_search.php';
+        break;
+
     // 🎯 EL DEFAULT SIEMPRE VA AL FINAL
     default:
         http_response_code(404);

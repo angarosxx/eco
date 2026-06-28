@@ -1,0 +1,151 @@
+/* ==========================================================================
+   CARDS SYSTEM (Estilo Chileautos Premium)
+   ========================================================================== */
+
+/* Grilla contenedora para los listados */
+.ads-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+/* Contenedor principal de la Tarjeta */
+.card-ad {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--text-main);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    position: relative;
+}
+
+/* Efecto Hover estilo Concesionaria */
+.card-ad:hover {
+    transform: translateY(-4px);
+    border-color: var(--text-muted);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Contenedor de la Imagen */
+.card-ad-media {
+    position: relative;
+    aspect-ratio: 16 / 10; /* Proporción ideal para vehículos, inmuebles y productos */
+    background-color: #f1f5f9;
+    overflow: hidden;
+}
+
+.card-ad-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card-ad:hover .card-ad-media img {
+    transform: scale(1.02);
+}
+
+/* Badges flotantes sobre la imagen (Destacado, Nuevo, etc) */
+.card-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    z-index: 10;
+}
+.badge-featured { background-color: var(--warning); color: #000; }
+.badge-premium { background-color: var(--primary); color: #fff; }
+
+/* Cuerpo de la Tarjeta */
+.card-ad-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Empuja el contenido hacia abajo uniformemente */
+}
+
+/* Título / Nombre del Producto */
+.card-ad-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    /* Limita a dos líneas máximo si el título es gigante */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Precio Destacado */
+.card-ad-price {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+}
+
+/* Bloque de Metadatos / Atributos (Año, KM, Combustible...) */
+.card-ad-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 0.75rem;
+}
+
+.spec-tag {
+    background-color: #f1f5f9; /* Gris sutil */
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+/* Footer de la tarjeta: Ubicación y Fecha */
+.card-ad-footer {
+    margin-top: auto; /* Truco maestro: clava el footer abajo del todo */
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.card-ad-location {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 500;
+}
+
+.ads-grid {
+    display: grid;
+    /* Forzamos exactamente 3 columnas iguales en pantallas grandes */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+/* En tablets baja a 2 columnas y en celulares a 1 columna */
+@media (max-width: 992px) {
+    .ads-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 576px) {
+    .ads-grid { grid-template-columns: 1fr; }
+}
