@@ -56,3 +56,13 @@ body {
     color: var(--text-muted);
     font-size: 0.9rem;
 }
+
+.auth-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: var(--bg-light); margin: 0; padding: 20px; }
+.auth-card { background: var(--bg-card); max-width: 400px; w-full; padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.theme-link { color: var(--primary-color); text-decoration: none; font-size: 0.85rem; }
+.theme-link-secondary { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+.theme-link:hover, .theme-link-secondary:hover { text-decoration: underline; }
+.form-footer { text-align: center; margin-top: 15px; }
+.alert-success { background-color: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
+.alert-danger { background-color: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
