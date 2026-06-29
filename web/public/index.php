@@ -20,10 +20,8 @@ $modo_mantenimiento = true;
 $ips_autorizadas = [
     '127.0.0.1',       
     '::1',             
-    '90.129.235.246'   // 🏡 Tu IP Pública autorizada
+    '90.129.235.246'   // 🏡 Tu IP Pública real autorizada
 ];
-
-
 
 // Captura la IP real que Nginx le pasa a K8s a través de X-Forwarded-For
 $user_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
@@ -40,13 +38,6 @@ if ($modo_mantenimiento && !in_array($user_ip, $ips_autorizadas)) {
 
 // Capturamos la ruta limpia
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-// 🩺 MÉDICO DE GUARDIA: Añade esto justo aquí
-echo "<pre>";
-echo "IP Detectada: " . htmlspecialchars($user_ip) . "\n";
-echo "URI que lee PHP: [" . htmlspecialchars($requestUri) . "]\n";
-echo "URI Original completa: [" . htmlspecialchars($_SERVER['REQUEST_URI'] ?? '') . "]\n";
-echo "</pre>";
-exit;
 
 // 🔥 Si es una petición a la API, se ejecuta directo el archivo físico
 if (strpos($requestUri, '/api/') === 0) {
@@ -79,7 +70,7 @@ switch ($requestUri) {
         require_once __DIR__ . '/dashboard.php';
         break;
 
-    // 🎯 Lista de anuncios (Mapeamos listings para resolver tu error anterior)
+    // 🎯 Lista de anuncios
     case '/listings':
     case '/listings.php':
     case '/advanced_search':
