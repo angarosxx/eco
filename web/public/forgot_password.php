@@ -42,7 +42,7 @@
             const alertText = document.getElementById('alert-text');
             
             try {
-                const res = await fetch('/api/auth/reset_request.php', {
+                const res = await fetch('/public/api/auth/reset_request.php', {
                     method: 'POST',
                     body: new FormData(e.target)
                 });
