@@ -23,6 +23,9 @@ spec:
         ports:
         - containerPort: 80
         env:
+        # 🔥 FIJACIÓN DE LA RAÍZ DE APACHE PARA EVITAR LOS 404
+        - name: APACHE_DOCUMENT_ROOT
+          value: "/var/www/html/public"
         - name: DB_HOST
           valueFrom:
             secretKeyRef:
@@ -69,9 +72,13 @@ metadata:
   namespace: eco-prod
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    # Tells Nginx to accept SSL termination natively or pass through from Cloudflare
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "20m" # Supports large image uploads for ads
+    # 🍪 STICKY SESSIONS: Mantiene al usuario en el mismo Pod para no perder la sesión de PHP
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "ECO_STICKY_SESSION"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
 spec:
   rules:
   - host: www.ecomercio.cl
