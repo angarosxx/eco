@@ -12,6 +12,37 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once __DIR__ . '/../vendor/autoload.php';
 }
 
+// ==========================================================================
+// 🛡️ MODO MANTENIMIENTO CON BYPASS POR IP
+// ==========================================================================
+$modo_mantenimiento = true; // Cambia a false cuando quieras lanzar la web al público
+
+// Lista de IPs autorizadas para saltarse el mantenimiento y testear (Tu IP pública)
+$ips_autorizadas = [
+    '127.0.0.1',  // Localhost
+    '::1',
+    '186.10.245.198'        // Localhost IPv6
+    // '200.12.34.56' <-- Quita el comentario y pon aquí tu IP de la casa/oficina
+];
+
+// Capturamos la IP real del usuario (incluso detrás de proxies de k8s/Cloudflare)
+$user_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+
+if ($modo_mantenimiento && !in-array($user_ip, $ips_autorizadas)) {
+    // Si la IP no está autorizada, cargamos la pantalla de "Próximamente" y matamos el script
+    require_once __DIR__ . '/../src/Views/maintenance.php';
+    exit;
+}
+// ==========================================================================
+
+$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// (El resto de tu código de la API y el switch de rutas sigue exactamente igual abajo...)
+
+
+
+
+
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // 🔥 Si es una petición a la API, se ejecuta directo el archivo físico
