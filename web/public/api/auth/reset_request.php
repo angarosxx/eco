@@ -5,8 +5,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Cargar clases core mediante el autoloader o rutas relativas según tu estructura
-require_once __DIR__ . '/../../../src/Core/Database.php';
+// 🛡️ Dejamos que Composer maneje la carga limpia bajo el namespace correcto
+// (Elimina el require_once directo a Database.php si el index ya cargó el autoloader)
+if (!class_exists('Eco\Core\Database')) {
+    if (file_exists(__DIR__ . '/../../../vendor/autoload.php')) {
+        require_once __DIR__ . '/../../../vendor/autoload.php';
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -22,8 +27,8 @@ if (!$email) {
 }
 
 try {
-    // Instanciamos tu clase de conexión nativa a MariaDB
-    $db = \Core\Database::getInstance()->getConnection(); 
+    // 🔥 CORREGIDO: Usamos el namespace real 'Eco\Core' y el método estático directo que definiste
+    $db = \Eco\Core\Database::getConnection();
 
     // 1. Verificar si el usuario existe en MariaDB
     $stmt = $db->prepare("SELECT id FROM users WHERE email = :email LIMIT 1");
