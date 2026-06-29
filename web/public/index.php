@@ -38,6 +38,13 @@ if ($modo_mantenimiento && !in_array($user_ip, $ips_autorizadas)) {
 
 // Capturamos la ruta limpia
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+// 🩺 MÉDICO DE GUARDIA: Añade esto justo aquí
+echo "<pre>";
+echo "IP Detectada: " . htmlspecialchars($user_ip) . "\n";
+echo "URI que lee PHP: [" . htmlspecialchars($requestUri) . "]\n";
+echo "URI Original completa: [" . htmlspecialchars($_SERVER['REQUEST_URI'] ?? '') . "]\n";
+echo "</pre>";
+exit;
 
 // 🔥 Si es una petición a la API, se ejecuta directo el archivo físico
 if (strpos($requestUri, '/api/') === 0) {
