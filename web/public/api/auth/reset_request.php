@@ -50,7 +50,8 @@ try {
 
         // 4. Enviar el correo electrónico
         // TODO: Aquí integrarás PHPMailer o tu servicio smtp de K8s.
-        $resetLink = "https://" . $_SERVER['HTTP_HOST'] . "/reset_password.php?token=" . $token;
+        //$resetLink = "https://" . $_SERVER['HTTP_HOST'] . "/reset_password.php?token=" . $token;
+        $resetLink = "https://" . $_SERVER['HTTP_HOST'] . "/public/reset_password.php?token=" . $token;
         
         // Log temporal en el contenedor para que puedas capturar el link mientras pruebas
         error_log("[RESET PASSWORD] Enlace generado para {$email}: {$resetLink}");
