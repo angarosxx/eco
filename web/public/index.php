@@ -36,8 +36,9 @@ if ($modo_mantenimiento && !in_array($user_ip, $ips_autorizadas)) {
 }
 // ==========================================================================
 
-//$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
+$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+echo "La ruta exacta que lee PHP es: [" . $requestUri . "]"; 
+exit;
 // (El resto de tu código de la API y el switch de rutas sigue exactamente igual abajo...)
 
 if (strpos($requestUri, '/index.php') === 0) {
