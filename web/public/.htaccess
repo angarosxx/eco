@@ -5,7 +5,13 @@ RewriteBase /
 RewriteCond %{REQUEST_URI} ^/api [NC]
 RewriteRule ^ - [L]
 
-# Enrutador global para páginas normales
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Si intentan acceder a un archivo o carpeta real que sí exista, lo deja pasar
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    
+    # Todo lo demás lo redirige silenciosamente a index.php para que procese la ruta
+    RewriteRule ^ index.php [L]
+</IfModule>
