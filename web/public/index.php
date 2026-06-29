@@ -36,11 +36,14 @@ if ($modo_mantenimiento && !in_array($user_ip, $ips_autorizadas)) {
 }
 // ==========================================================================
 
-$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+//$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // (El resto de tu código de la API y el switch de rutas sigue exactamente igual abajo...)
 
-
+if (strpos($requestUri, '/index.php') === 0) {
+    $requestUri = substr($requestUri, 10); // Quita "/index.php"
+    if (empty($requestUri)) $requestUri = '/';
+}
 
 
 
