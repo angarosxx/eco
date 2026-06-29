@@ -15,24 +15,27 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 // ==========================================================================
 // 🛡️ MODO MANTENIMIENTO CON BYPASS POR IP
 // ==========================================================================
-$modo_mantenimiento = true; 
+$modo_mantenimiento = true; // 🌟 ASEGÚRATE DE QUE ESTÉ EN TRUE
 
 $ips_autorizadas = [
     '127.0.0.1',       
     '::1',             
-    '90.129.235.246'   // 🏡 Tu IP Pública real autorizada
+    '90.129.235.246'   // 🏡 Tu IP de internet (la que vimos en el test)
 ];
 
-// Captura la IP real que Nginx le pasa a K8s a través de X-Forwarded-For
+// Captura la IP real que Nginx le pasa a K8s
 $user_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
 
 if (strpos($user_ip, ',') !== false) {
     $user_ip = trim(explode(',', $user_ip)[0]);
 }
 
+// Si está en mantenimiento y la IP NO está en la lista blanca...
 if ($modo_mantenimiento && !in_array($user_ip, $ips_autorizadas)) {
+    // Forzamos un código HTTP 503 (Servicio No Disponible)
+    http_response_code(503);
     require_once __DIR__ . '/../src/Views/maintenance.php';
-    exit;
+    exit(); // Matamos la ejecución para que NO siga hacia el switch
 }
 // ==========================================================================
 
