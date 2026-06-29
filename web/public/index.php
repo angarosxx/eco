@@ -20,8 +20,10 @@ $modo_mantenimiento = true;
 $ips_autorizadas = [
     '127.0.0.1',       
     '::1',             
-    '186.10.245.198'   // 🏡 Tu IP Pública autorizada
+    '90.129.235.246'   // 🏡 Tu IP Pública autorizada
 ];
+
+
 
 // Captura la IP real que Nginx le pasa a K8s a través de X-Forwarded-For
 $user_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
