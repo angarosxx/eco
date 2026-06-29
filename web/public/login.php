@@ -115,7 +115,7 @@
                 submitBtn.innerText = isRecoveryMode ? 'Procesando...' : 'Verificando...';
             }
 
-            const endpoint = isRecoveryMode ? '/api/auth/forgot_process.php' : '/api/auth/login_process.php';
+            const endpoint = isRecoveryMode ? '/api/auth/reset_request.php' : '/api/auth/login_process.php';
 
             try {
                 const response = await fetch(endpoint, {

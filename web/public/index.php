@@ -13,14 +13,27 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 
 // ==========================================================================
-// 🛡️ MODO MANTENIMIENTO CON BYPASS POR IP
+// 🚀 1. EXCEPCIÓN INMEDIATA DE LA API (Debe ir antes que el mantenimiento)
+// ==========================================================================
+$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+if (strpos($requestUri, '/api/') === 0) {
+    $apiFile = __DIR__ . $requestUri;
+    if (file_exists($apiFile)) {
+        require_once $apiFile;
+        exit;
+    }
+}
+
+// ==========================================================================
+// 🛡️ 2. MODO MANTENIMIENTO CON BYPASS POR IP
 // ==========================================================================
 $modo_mantenimiento = true; // 🌟 ASEGÚRATE DE QUE ESTÉ EN TRUE
 
 $ips_autorizadas = [
     '127.0.0.1',       
     '::1',             
-    '90.129.235.246'   // 🏡 Tu IP de internet (la que vimos en el test)
+    '90.129.235.246'   // 🏡 Tu IP de internet
 ];
 
 // Captura la IP real que Nginx le pasa a K8s
@@ -32,24 +45,16 @@ if (strpos($user_ip, ',') !== false) {
 
 // Si está en mantenimiento y la IP NO está en la lista blanca...
 if ($modo_mantenimiento && !in_array($user_ip, $ips_autorizadas)) {
-    // Forzamos un código HTTP 503 (Servicio No Disponible)
     http_response_code(503);
     require_once __DIR__ . '/../src/Views/maintenance.php';
-    exit(); // Matamos la ejecución para que NO siga hacia el switch
+    exit(); 
 }
 // ==========================================================================
 
-// Capturamos la ruta limpia
-$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// 🔥 Si es una petición a la API, se ejecuta directo el archivo físico
-if (strpos($requestUri, '/api/') === 0) {
-    $apiFile = __DIR__ . $requestUri;
-    if (file_exists($apiFile)) {
-        require_once $apiFile;
-        exit;
-    }
-}
+// Enrutador global para páginas estándar
+switch ($requestUri) {
+    // ... Tu switch actual se queda exactamente igual abajo ...
 
 // Enrutador global para páginas estándar
 switch ($requestUri) {
