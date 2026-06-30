@@ -27,7 +27,7 @@ try {
     $result = $controller->authenticate($_POST);
 
     if ($result['success']) {
-        session_regenerate_id(true);
+        //session_regenerate_id(true);
 
         $_SESSION['user_id'] = (int)$result['user_id'];
         $_SESSION['account_type'] = $result['account_type'];
