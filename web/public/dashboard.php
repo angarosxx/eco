@@ -1,14 +1,11 @@
 <?php
-// Forzar configuraciones seguras antes de iniciar cualquier sesión
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', 1); // 🔒 Forzado incondicional para producción HTTPS
-
-// 🔒 Forzamos a PHP a guardar las sesiones en nuestra carpeta con permisos correctos
-ini_set('session.save_path', __DIR__ . '/../storage/sessions');
-
+// 🔒 Configuración de sesión atómica e incondicional para producción HTTPS
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    session_start([
+        'cookie_httponly' => true,
+        'cookie_secure'   => true, // Fuerza el candado HTTPS de la captura
+        'use_only_cookies' => true
+    ]);
 }
 
 if (!isset($_SESSION['user_id'])) {
