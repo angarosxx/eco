@@ -105,7 +105,7 @@
             backToLoginContainer.classList.add('hidden');
         });
 
-        // 🚀 Envío asíncrono
+        // 🚀 Envío asíncrono optimizado
         form?.addEventListener('submit', async (e) => {
             e.preventDefault();
             alertBanner.classList.add('hidden');
@@ -123,12 +123,24 @@
                     body: new FormData(form)
                 });
 
+                // 🛡️ Si el servidor responde con un código de error (404, 500, etc)
                 if (!response.ok) {
                     const errText = await response.text();
-                    throw new Error(errText || 'Error interno en el servidor.');
+                    // Si lo que devolvió es un HTML de error de Apache, extraemos un mensaje limpio
+                    if (errText.includes('<!DOCTYPE html>') || errText.includes('Fatal error')) {
+                        console.error("Error crudo del servidor:", errText);
+                        throw new Error('El servidor devolvió un error interno. Revisa la consola o los logs.');
+                    }
+                    throw new Error(errText || `Error en el servidor (Status: ${response.status})`);
                 }
 
-                const result = await response.json();
+                // Intentamos parsear el JSON de forma segura
+                let result;
+                try {
+                    result = await response.json();
+                } catch (jsonErr) {
+                    throw new Error('La respuesta del servidor no es un JSON válido.');
+                }
                 
                 if (result.success) {
                     if (isRecoveryMode) {
@@ -145,9 +157,10 @@
                     alertBanner.classList.remove('hidden');
                 }
             } catch (err) {
-                console.error(err);
+                console.error("Error atrapado en el submit:", err);
                 setAlertStyle('error');
-                alertMessage.innerHTML = `<strong>Error:</strong><br><small>${err.message}</small>`;
+                // Usamos textContent de forma segura para evitar problemas de parseo en el DOM
+                alertMessage.textContent = err.message;
                 alertBanner.classList.remove('hidden');
             } finally {
                 if (submitBtn) {
@@ -156,7 +169,6 @@
                 }
             }
         });
-    });
 </script>
 </body>
 </html>
