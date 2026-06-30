@@ -1,5 +1,6 @@
 FROM php:8.2-apache
 
+# 1. Instalamos dependencias del sistema, herramientas de compilación y extensiones
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libjpeg-dev \
@@ -7,12 +8,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zip \
     unzip \
     git \
+    build-essential \
+    $PHPIZE_DEPS \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo_mysql gd \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    # 🧼 Limpieza inmediata para reducir el peso de la capa de la imagen
+    && apt-get purge -y --auto-remove build-essential $PHPIZE_DEPS \
     && rm -rf /var/lib/apt/lists/*
-
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) pdo_mysql gd
-
-RUN pecl install redis && docker-php-ext-enable redis
 
 RUN a2enmod rewrite
 
