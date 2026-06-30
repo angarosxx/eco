@@ -33,6 +33,7 @@ COPY . /var/www/html
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN chown -R www-data:www-data /var/www/html
+RUN mkdir -p /var/www/html/storage/sessions
 
 EXPOSE 80
 CMD ["apache2-foreground"]

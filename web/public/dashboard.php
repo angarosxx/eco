@@ -4,6 +4,9 @@ ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_secure', 1); // 🔒 Forzado incondicional para producción HTTPS
 
+// 🔒 Forzamos a PHP a guardar las sesiones en nuestra carpeta con permisos correctos
+ini_set('session.save_path', __DIR__ . '/../storage/sessions');
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
