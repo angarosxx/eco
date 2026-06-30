@@ -1,4 +1,9 @@
 <?php
+// Forzar configuraciones seguras antes de iniciar cualquier sesión
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', 1); // 🔒 Forzado incondicional para producción HTTPS
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
