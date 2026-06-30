@@ -35,5 +35,10 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN chown -R www-data:www-data /var/www/html
 RUN mkdir -p /var/www/html/storage/sessions
 
+# 🔒 Inyección nativa de cookies seguras y HttpOnly a nivel de entorno PHP
+RUN echo "session.cookie_secure = On" >> /usr/local/etc/php/conf.d/docker-php-sessions.ini && \
+    echo "session.cookie_httponly = On" >> /usr/local/etc/php/conf.d/docker-php-sessions.ini && \
+    echo "session.cookie_samesite = Lax" >> /usr/local/etc/php/conf.d/docker-php-sessions.ini
+
 EXPOSE 80
 CMD ["apache2-foreground"]

@@ -2,27 +2,15 @@
     RewriteEngine On
     RewriteBase /
 
-    # 🚀 1. EXCLUSIÓN TOTAL DE API: Deja pasar cualquier petición dentro de /api/
+    # 🚀 1. EXCLUSIÓN TOTAL DE API
     RewriteCond %{REQUEST_URI} ^/api [NC]
     RewriteRule ^ - [L]
 
-    # 📂 2. PERMITIR RECURSOS REALES: Si el archivo o carpeta SÍ existen en el disco, los carga normalmente
+    # 📂 2. PERMITIR RECURSOS REALES
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # 🔀 3. ENRUTADOR CENTRAL: Todo lo que no exista en el disco físico va a index.php
+    # 🔀 3. ENRUTADOR CENTRAL
     RewriteRule ^ index.php [L]
-</IfModule>
-
-# 🔒 Forzar banderas seguras para la cookie de sesión de PHP (Compatible con PHP 8.2)
-<IfModule mod_php7.c>
-    php_flag session.cookie_secure on
-    php_flag session.cookie_httponly on
-    php_value session.cookie_samesite Lax
-</IfModule>
-<IfModule mod_php.c>
-    php_flag session.cookie_secure on
-    php_flag session.cookie_httponly on
-    php_value session.cookie_samesite Lax
 </IfModule>
