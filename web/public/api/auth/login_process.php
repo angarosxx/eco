@@ -1,12 +1,26 @@
 <?php
-// 🔒 Configuración de sesión atómica e incondicional para producción HTTPS
-if (session_status() === PHP_SESSION_NONE) {
-    session_start([
-        'cookie_httponly' => true,
-        'cookie_secure'   => true, // Fuerza el candado HTTPS de la captura
-        'use_only_cookies' => true
-    ]);
+// 1. Si el sistema ya inició una sesión desprotegida automáticamente, la cerramos
+if (session_status() === PHP_SESSION_ACTIVE) {
+    session_write_close();
 }
+
+// 2. Seteamos los parámetros globales a nivel de ejecución obligatoria
+ini_set('session.cookie_httponly', '1');
+ini_set('session.cookie_secure', '1');
+ini_set('session.use_only_cookies', '1');
+
+// 3. Forzamos los parámetros directamente en la configuración del manejador de cookies
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => 'ecomercio.cl', // Al amarrar el dominio exacto evitamos desajustes
+    'secure' => true,           // El flag "Secure" que necesitamos en true
+    'httponly' => true,         // El flag "HttpOnly" que necesitamos en true
+    'samesite' => 'Lax'
+]);
+
+// 4. Ahora sí, iniciamos la sesión con el entorno completamente blindado
+session_start();
 
 // TEMP DEBUG LOGS: right after session starts
 error_log('LOGIN START host=' . gethostname());
