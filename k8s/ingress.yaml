@@ -5,12 +5,26 @@ metadata:
   namespace: eco-prod
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    
     # 🍪 CONFIGURACIÓN CRÍTICA DE STICKY SESSIONS
     nginx.ingress.kubernetes.io/affinity: "cookie"
     nginx.ingress.kubernetes.io/session-cookie-name: "ECO_MARKET_AFFINITY"
     nginx.ingress.kubernetes.io/session-cookie-expires: "86400"
     nginx.ingress.kubernetes.io/session-cookie-max-age: "86400"
     nginx.ingress.kubernetes.io/session-cookie-path: "/"
+    
+    # 🛡️ 1. FORZAR BANDERAS SEGURAS DIRECTAMENTE EN EL PROXY NGINX (Infallible)
+    nginx.ingress.kubernetes.io/session-cookie-secure: "true"
+    nginx.ingress.kubernetes.io/session-cookie-conditional-samesite-none: "true"
+    
+    # 🔑 2. INYECTAR ENCABEZADOS DE PROTOCOLO PARA PHP
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Forwarded-Proto https;
+      proxy_set_header X-Forwarded-Port 443;
+    
+    # 🌐 3. CONFÍAR EN LAS IPs DE CLOUDFLARE (Evita colapsos de headers)
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+
     # Soporte SSL/HTTPS detrás de Cloudflare
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "20m"
@@ -23,6 +37,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: eco-web-service # <-- Asegúrate de que coincida con el nombre de tu Service en K8s
+            name: eco-web-service
             port:
               number: 80
