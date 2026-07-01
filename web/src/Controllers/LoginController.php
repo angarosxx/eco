@@ -70,9 +70,21 @@ class LoginController
             ];
 
         } catch (\PDOException $e) {
-            // Registramos el fallo real en el log del contenedor de K8s para ti
+            // 🕵️‍♂️ Capturamos el error real + el estado de lo que PHP está leyendo
+            $host = getenv('DB_HOST') ?: (isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'VACÍO');
+            $user = getenv('DB_USER') ?: (isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : 'VACÍO');
+            
             error_log('MariaDB Login Error: ' . $e->getMessage());
-            throw new Exception('Error de comunicación con el clúster de base de datos.');
+            
+            // Forzamos el mensaje real hacia el JSON de salida
+            $debugMessage = sprintf(
+                "PDO Falló. Host detectado por PHP: '%s', Usuario: '%s'. Error Real: %s",
+                $host,
+                $user,
+                $e->getMessage()
+            );
+            
+            throw new Exception($debugMessage);
         }
     }
 }
