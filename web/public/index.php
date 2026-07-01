@@ -3,8 +3,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
 // Cargar el Autoloader de Composer
@@ -13,7 +13,7 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 
 // ==========================================================================
-// 🚀 1. EXCEPCIÓN INMEDIATA DE LA API (Debe ir antes que el mantenimiento)
+// 1. EXCEPCIÓN INMEDIATA DE LA API
 // ==========================================================================
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -26,59 +26,49 @@ if (strpos($requestUri, '/api/') === 0) {
 }
 
 // ==========================================================================
-// 🛡️ 2. MODO MANTENIMIENTO CON BYPASS POR IP
+// 2. MODO MANTENIMIENTO CON BYPASS POR IP
 // ==========================================================================
-$modo_mantenimiento = true; // 🌟 ASEGÚRATE DE QUE ESTÉ EN TRUE
+$modo_mantenimiento = true;
 
 $ips_autorizadas = [
-    '127.0.0.1',       
-    '::1',             
-    '90.129.235.246'   // 🏡 Tu IP de internet
+    '127.0.0.1',
+    '::1',
+    '90.129.235.246'
 ];
 
-// Captura la IP real que Nginx le pasa a K8s
 $user_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
 
 if (strpos($user_ip, ',') !== false) {
     $user_ip = trim(explode(',', $user_ip)[0]);
 }
 
-// Si está en mantenimiento y la IP NO está en la lista blanca...
-if ($modo_mantenimiento && !in_array($user_ip, $ips_autorizadas)) {
+if ($modo_mantenimiento && !in_array($user_ip, $ips_autorizadas, true)) {
     http_response_code(503);
     require_once __DIR__ . '/../src/Views/maintenance.php';
-    exit(); 
+    exit;
 }
+
 // ==========================================================================
-
-
-// Enrutador global para páginas estándar
+// 3. ENRUTADOR GLOBAL PARA PÁGINAS ESTÁNDAR
+// ==========================================================================
 switch ($requestUri) {
-    // ... Tu switch actual se queda exactamente igual abajo ...
-
-// Enrutador global para páginas estándar
-switch ($requestUri) {
-    // 🏠 HOME: Soporta todas las variantes que Nginx o el navegador puedan enviar
     case '/':
     case '/index.php':
     case '/home':
-    case '/home.php': 
+    case '/home.php':
         require_once __DIR__ . '/../src/Views/home.php';
         break;
 
-    // 🎯 Login
     case '/login':
     case '/login.php':
         require_once __DIR__ . '/login.php';
         break;
 
-    // 🎯 Dashboard
     case '/dashboard':
     case '/dashboard.php':
         require_once __DIR__ . '/dashboard.php';
         break;
 
-    // 🎯 Lista de anuncios
     case '/listings':
     case '/listings.php':
     case '/advanced_search':
@@ -97,16 +87,15 @@ switch ($requestUri) {
         break;
 
     case '/ad_details':
-    case '/ad_details.php': 
+    case '/ad_details.php':
         require_once __DIR__ . '/ad_details.php';
         break;
 
-    // 🎯 EL DEFAULT SIEMPRE VA AL FINAL
     default:
         http_response_code(404);
         echo json_encode([
-            "success" => false, 
-            "message" => "Ruta no encontrada en K8s: " . htmlspecialchars($requestUri)
+            'success' => false,
+            'message' => 'Ruta no encontrada en K8s: ' . htmlspecialchars($requestUri)
         ]);
         break;
 }
