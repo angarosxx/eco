@@ -32,13 +32,20 @@ WORKDIR /var/www/html
 COPY . /var/www/html
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
-RUN chown -R www-data:www-data /var/www/html
+
+# 📂 1. Primero creamos la carpeta de almacenamiento de sesiones locales (por si acaso)
 RUN mkdir -p /var/www/html/storage/sessions
 
-# 🔒 Inyección nativa de cookies seguras y HttpOnly a nivel de entorno PHP
-RUN echo "session.cookie_secure = On" >> /usr/local/etc/php/conf.d/docker-php-sessions.ini && \
-    echo "session.cookie_httponly = On" >> /usr/local/etc/php/conf.d/docker-php-sessions.ini && \
-    echo "session.cookie_samesite = Lax" >> /usr/local/etc/php/conf.d/docker-php-sessions.ini
+# 🔑 2. Ahora aplicamos chown general (incluyendo la carpeta que acabamos de crear)
+RUN chown -R www-data:www-data /var/www/html
+
+# 🔒 3. Inyección nativa y unificada en el php.ini usando Redis para el ambiente Multi-Pod
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
+    sed -i 's/session.save_handler =.*/session.save_handler = redis/g' "$PHP_INI_DIR/php.ini" && \
+    sed -i 's|;session.save_path =.*|session.save_path = "tcp://redis-service.eco-prod.svc.cluster.local:6379"|g' "$PHP_INI_DIR/php.ini" && \
+    sed -i 's/session.cookie_secure =.*/session.cookie_secure = On/g' "$PHP_INI_DIR/php.ini" && \
+    sed -i 's/session.cookie_httponly =.*/session.cookie_httponly = On/g' "$PHP_INI_DIR/php.ini" && \
+    sed -i 's/session.cookie_samesite =.*/session.cookie_samesite = "Lax"/g' "$PHP_INI_DIR/php.ini"
 
 EXPOSE 80
 CMD ["apache2-foreground"]
