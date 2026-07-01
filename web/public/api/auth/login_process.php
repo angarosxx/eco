@@ -48,13 +48,15 @@ try {
     echo json_encode($result);
     exit;
 
-} catch (\Throwable $e) {
-    error_log('LOGIN ERROR: ' . $e->getMessage());
-
+} catch (\Exception $e) {
+    // 🕵️‍♂️ DEBUG TOTAL: Guardamos el error en los logs de Apache del Pod
+    error_log('LOGIN CRITICAL EXCEPTION: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Fallo crítico en el servidor.'
+        // 🔥 Reemplazamos el string genérico por el error real para cazarlo ya mismo
+        'message' => 'Fallo interno: ' . $e->getMessage() . ' (En línea ' . $e->getLine() . ' de ' . basename($e->getFile()) . ')'
     ]);
     exit;
 }
