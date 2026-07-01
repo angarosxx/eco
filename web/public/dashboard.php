@@ -3,18 +3,15 @@ error_reporting(E_ALL);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-// 1. Iniciamos la sesión (las directivas seguras ya las inyecta el Dockerfile automáticamente)
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 2. Validación estricta del usuario autenticado
 if (!isset($_SESSION['user_id'])) {
     header('Location: /login.php');
     exit;
 }
 
-// 3. Carga de dependencias y lógica de negocio
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Eco\Controllers\DashboardController;
@@ -22,7 +19,6 @@ use Eco\Controllers\DashboardController;
 $controller = new DashboardController();
 $userAds = $controller->getUserListings((int) $_SESSION['user_id']);
 
-// 4. Funciones auxiliares para la vista HTML
 function statusBadgeClasses(string $status): string
 {
     return match ($status) {
@@ -166,6 +162,7 @@ function formatPrice(float $price): string
                         : '[images.unsplash.com](https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=900&q=80)';
 
                     $status = $ad['status'] ?? 'active';
+                    $location = trim(($ad['comuna_name'] ?? '') . ' - ' . ($ad['region_name'] ?? ''), ' -');
                     ?>
                     <article class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                         <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
@@ -178,7 +175,7 @@ function formatPrice(float $price): string
 
                         <div class="p-5">
                             <div class="flex items-start justify-between gap-3">
-                                <h3 class="text-lg font-semibold text-gray-900 leading-snug line-clamp-2">
+                                <h3 class="text-lg font-semibold text-gray-900 leading-snug">
                                     <?= htmlspecialchars($ad['title']) ?>
                                 </h3>
 
@@ -187,7 +184,7 @@ function formatPrice(float $price): string
                                 </span>
                             </div>
 
-                            <p class="mt-2 text-sm text-gray-500 line-clamp-2">
+                            <p class="mt-2 text-sm text-gray-500">
                                 <?= htmlspecialchars($ad['description']) ?>
                             </p>
 
@@ -195,7 +192,7 @@ function formatPrice(float $price): string
                                 <div class="flex items-center justify-between gap-4">
                                     <span class="text-gray-500">Ubicación</span>
                                     <span class="text-right text-gray-900 font-medium">
-                                        <?= htmlspecialchars(trim(($ad['comuna_name'] ?? '') . ' - ' . ($ad['region_name'] ?? ''), ' -')) ?>
+                                        <?= htmlspecialchars($location !== '' ? $location : 'Sin ubicación') ?>
                                     </span>
                                 </div>
 

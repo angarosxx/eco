@@ -19,13 +19,13 @@
             <span id="alert-message"></span>
         </div>
 
-        <form id="loginForm" method="POST" action=""> 
+        <form id="loginForm" method="POST" action="">
             <div class="form-group-container">
                 <div class="form-group">
                     <label for="email" class="form-label">Correo electrónico</label>
                     <input id="email" name="email" type="email" required class="form-input">
                 </div>
-                
+
                 <div id="password-container" class="form-group">
                     <div class="flex-between">
                         <label for="password" class="form-label">Contraseña</label>
@@ -40,7 +40,7 @@
                     Iniciar Sesión
                 </button>
             </div>
-            
+
             <div id="back-to-login-container" class="form-footer hidden">
                 <a href="#" id="back-to-login-link" class="theme-link-secondary">Volver al inicio de sesión</a>
             </div>
@@ -53,7 +53,7 @@
         const alertBanner = document.getElementById('alert-banner');
         const alertMessage = document.getElementById('alert-message');
         const submitBtn = document.getElementById('submit-btn');
-        
+
         const passwordContainer = document.getElementById('password-container');
         const passwordInput = document.getElementById('password');
         const formTitle = document.getElementById('form-title');
@@ -65,7 +65,8 @@
         let isRecoveryMode = false;
 
         const setAlertStyle = (type) => {
-            alertBanner.className = 'alert-box'; // Limpiamos clases extras
+            alertBanner.className = 'alert-box';
+
             if (type === 'error') {
                 alertBanner.classList.add('alert-danger');
             } else {
@@ -73,75 +74,81 @@
             }
         };
 
-        // 🔄 Activar modo recuperación
         forgotPasswordLink?.addEventListener('click', (e) => {
             e.preventDefault();
             isRecoveryMode = true;
             alertBanner.classList.add('hidden');
-            
-            formTitle.textContent = "Recuperar Contraseña";
-            formSubtitle.textContent = "Introduce tu correo para enviarte un enlace de restauración";
-            
+            alertMessage.textContent = '';
+
+            formTitle.textContent = 'Recuperar Contraseña';
+            formSubtitle.textContent = 'Introduce tu correo para enviarte un enlace de restauración';
+
             passwordContainer.classList.add('hidden');
             passwordInput.removeAttribute('required');
-            
-            submitBtn.textContent = "Enviar enlace de recuperación";
+            passwordInput.value = '';
+
+            submitBtn.textContent = 'Enviar enlace de recuperación';
             backToLoginContainer.classList.remove('hidden');
         });
 
-        // 🔄 Regresar al Login
         backToLoginLink?.addEventListener('click', (e) => {
             e.preventDefault();
             isRecoveryMode = false;
             alertBanner.classList.add('hidden');
-            
-            formTitle.textContent = "Ecomercio";
-            formSubtitle.textContent = "Ingresa a tu panel de administración";
-            
+            alertMessage.textContent = '';
+
+            formTitle.textContent = 'Ecomercio';
+            formSubtitle.textContent = 'Ingresa a tu panel de administración';
+
             passwordContainer.classList.remove('hidden');
             passwordInput.setAttribute('required', 'required');
-            
-            submitBtn.textContent = "Iniciar Sesión";
+
+            submitBtn.textContent = 'Iniciar Sesión';
             backToLoginContainer.classList.add('hidden');
         });
 
-        // 🚀 Envío asíncrono optimizado
         form?.addEventListener('submit', async (e) => {
             e.preventDefault();
+
             alertBanner.classList.add('hidden');
+            alertMessage.textContent = '';
 
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.innerText = isRecoveryMode ? 'Procesando...' : 'Verificando...';
             }
 
-            const endpoint = isRecoveryMode ? '/api/auth/reset_request.php' : '/api/auth/login_process.php';
+            const endpoint = isRecoveryMode
+                ? '/api/auth/reset_request.php'
+                : '/api/auth/login_process.php';
 
             try {
                 const response = await fetch(endpoint, {
                     method: 'POST',
+                    credentials: 'include',
                     body: new FormData(form)
                 });
 
-                // 🛡️ Si el servidor responde con un código de error (404, 500, etc)
-                if (!response.ok) {
-                    const errText = await response.text();
-                    // Si lo que devolvió es un HTML de error de Apache, extraemos un mensaje limpio
-                    if (errText.includes('<!DOCTYPE html>') || errText.includes('Fatal error')) {
-                        console.error("Error crudo del servidor:", errText);
-                        throw new Error('El servidor devolvió un error interno. Revisa la consola o los logs.');
+                let result = null;
+                const contentType = response.headers.get('content-type') || '';
+
+                if (contentType.includes('application/json')) {
+                    result = await response.json();
+                } else {
+                    const rawText = await response.text();
+
+                    if (rawText.includes('<!DOCTYPE html>') || rawText.includes('Fatal error')) {
+                        console.error('Respuesta inesperada del servidor:', rawText);
+                        throw new Error('El servidor devolvió un error interno. Revisa los logs.');
                     }
-                    throw new Error(errText || `Error en el servidor (Status: ${response.status})`);
+
+                    throw new Error(rawText || `Error en el servidor (Status: ${response.status})`);
                 }
 
-                // Intentamos parsear el JSON de forma segura
-                let result;
-                try {
-                    result = await response.json();
-                } catch (jsonErr) {
-                    throw new Error('La respuesta del servidor no es un JSON válido.');
+                if (!response.ok) {
+                    throw new Error(result.message || `Error en el servidor (Status: ${response.status})`);
                 }
-                
+
                 if (result.success) {
                     if (isRecoveryMode) {
                         setAlertStyle('success');
@@ -157,19 +164,20 @@
                     alertBanner.classList.remove('hidden');
                 }
             } catch (err) {
-                console.error("Error atrapado en el submit:", err);
+                console.error('Error atrapado en el submit:', err);
                 setAlertStyle('error');
-                // Usamos textContent de forma segura para evitar problemas de parseo en el DOM
-                alertMessage.textContent = err.message;
+                alertMessage.textContent = err.message || 'Ocurrió un error inesperado.';
                 alertBanner.classList.remove('hidden');
             } finally {
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.innerText = isRecoveryMode ? 'Enviar enlace de recuperación' : 'Iniciar Sesión';
+                    submitBtn.innerText = isRecoveryMode
+                        ? 'Enviar enlace de recuperación'
+                        : 'Iniciar Sesión';
                 }
             }
         });
     });
-</script>
+    </script>
 </body>
 </html>

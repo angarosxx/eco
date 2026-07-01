@@ -41,11 +41,16 @@ RUN chown -R www-data:www-data /var/www/html
 
 # 🔒 3. Inyección nativa y unificada en el php.ini usando Redis para el ambiente Multi-Pod
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
-    sed -i 's/session.save_handler =.*/session.save_handler = redis/g' "$PHP_INI_DIR/php.ini" && \
-    sed -i 's|;session.save_path =.*|session.save_path = "tcp://redis-service.eco-prod.svc.cluster.local:6379"|g' "$PHP_INI_DIR/php.ini" && \
-    sed -i 's/session.cookie_secure =.*/session.cookie_secure = On/g' "$PHP_INI_DIR/php.ini" && \
-    sed -i 's/session.cookie_httponly =.*/session.cookie_httponly = On/g' "$PHP_INI_DIR/php.ini" && \
-    sed -i 's/session.cookie_samesite =.*/session.cookie_samesite = "Lax"/g' "$PHP_INI_DIR/php.ini"
+    { \
+      echo ''; \
+      echo '; Custom session settings'; \
+      echo 'session.save_handler = redis'; \
+      echo 'session.save_path = "tcp://redis-service.eco-prod.svc.cluster.local:6379"'; \
+      echo 'session.cookie_secure = On'; \
+      echo 'session.cookie_httponly = On'; \
+      echo 'session.cookie_samesite = Lax'; \
+    } >> "$PHP_INI_DIR/php.ini"
+
 
 EXPOSE 80
 CMD ["apache2-foreground"]
