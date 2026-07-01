@@ -1,27 +1,20 @@
 <?php
-// 1. Si el sistema ya inició una sesión desprotegida automáticamente, la cerramos
-if (session_status() === PHP_SESSION_ACTIVE) {
-    session_write_close();
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
+// 1. Iniciamos la sesión (las directivas seguras ya las inyecta el Dockerfile automáticamente)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-// 2. Seteamos los parámetros globales a nivel de ejecución obligatoria
-ini_set('session.cookie_httponly', '1');
-ini_set('session.cookie_secure', '1');
-ini_set('session.use_only_cookies', '1');
+// 2. Validación estricta del usuario autenticado
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /login.php');
+    exit;
+}
 
-// 3. Forzamos los parámetros directamente en la configuración del manejador de cookies
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path' => '/',
-    'domain' => 'ecomercio.cl', // Al amarrar el dominio exacto evitamos desajustes
-    'secure' => true,           // El flag "Secure" que necesitamos en true
-    'httponly' => true,         // El flag "HttpOnly" que necesitamos en true
-    'samesite' => 'Lax'
-]);
-
-// 4. Ahora sí, iniciamos la sesión con el entorno completamente blindado
-session_start();
-
+// 3. Carga de dependencias y lógica de negocio
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Eco\Controllers\DashboardController;
@@ -29,6 +22,7 @@ use Eco\Controllers\DashboardController;
 $controller = new DashboardController();
 $userAds = $controller->getUserListings((int) $_SESSION['user_id']);
 
+// 4. Funciones auxiliares para la vista HTML
 function statusBadgeClasses(string $status): string
 {
     return match ($status) {
