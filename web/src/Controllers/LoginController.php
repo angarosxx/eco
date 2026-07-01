@@ -2,7 +2,7 @@
 
 namespace Eco\Controllers;
 
-use Core\Database;
+use Eco\Core\Database;
 use Exception;
 
 class LoginController
@@ -26,7 +26,7 @@ class LoginController
 
         try {
             // Conexión nativa a MariaDB utilizando tu Singleton Core\Database
-            $db = Database::getInstance()->getConnection();
+            $db = Database::getConnection();
 
             // Buscamos al usuario por su correo
             $stmt = $db->prepare("

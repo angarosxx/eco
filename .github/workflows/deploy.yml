@@ -2,14 +2,13 @@ name: CI/CD Build and Deploy Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
@@ -20,7 +19,6 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # --- Eliminamos Node por completo. Vamos directo a Docker ---
       - name: Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@v3
         with:
@@ -48,17 +46,27 @@ jobs:
   deploy-marketplace:
     needs: build-and-push
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup Kubernetes Context Manually
+      - name: Setup Kubernetes Context
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Apply your base configurations globally inside your k8s folder
+      - name: Apply Kubernetes manifests
         run: |
           kubectl apply -f k8s/secrets.yaml
-          kubectl replace --force -f k8s/deployments.yaml
+          kubectl apply -f k8s/redis.yaml
+          kubectl apply -f k8s/deployments.yaml
+
+      - name: Restart web deployment
+        run: |
+          kubectl rollout restart deployment/eco-web-deployment -n eco-prod
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/eco-web-deployment -n eco-prod --timeout=180s
