@@ -6,7 +6,7 @@ metadata:
   labels:
     app: eco-web
 spec:
-  replicas: 2 # High availability redundancy
+  replicas: 2
   selector:
     matchLabels:
       app: eco-web
@@ -17,13 +17,11 @@ spec:
     spec:
       containers:
       - name: web-app
-        # Pulls the image built by your GitHub action workflow
         image: ghcr.io/angarosxx/eco:latest 
         imagePullPolicy: Always
         ports:
         - containerPort: 80
         env:
-        # 🔥 FIJACIÓN DE LA RAÍZ DE APACHE PARA EVITAR LOS 404
         - name: APACHE_DOCUMENT_ROOT
           value: "/var/www/html/public"
         - name: DB_HOST
@@ -49,7 +47,7 @@ spec:
         - name: DB_PORT
           value: "3306"
         - name: DB_SSL
-          value: "true" # <--- FIXED: Changes encryption state to match your plain-text internal ClusterIP
+          value: "false" # 🔒 Desactivado para permitir texto plano interno hacia el bridge
 ---
 apiVersion: v1
 kind: Service
@@ -57,13 +55,13 @@ metadata:
   name: eco-web-service
   namespace: eco-prod
 spec:
-  type: NodePort # 🔥 CHANGE THIS FROM ClusterIP
+  type: NodePort
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30083 # 🔥 FORCE IT TO LOCK TO YOUR PROXY'S PORT
+      nodePort: 30083
   selector:
-    app: eco-web # This must match your deployment template labels
+    app: eco-web
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -73,8 +71,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "20m" # Supports large image uploads for ads
-    # 🍪 STICKY SESSIONS: Mantiene al usuario en el mismo Pod para no perder la sesión de PHP
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
     nginx.ingress.kubernetes.io/affinity: "cookie"
     nginx.ingress.kubernetes.io/session-cookie-name: "ECO_STICKY_SESSION"
     nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
